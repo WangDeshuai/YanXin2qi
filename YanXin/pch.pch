@@ -1,0 +1,52 @@
+//
+//  pch.pch
+//  YanXin
+//
+//  Created by mac on 16/2/18.
+//  Copyright (c) 2016年 mac. All rights reserved.
+//
+
+#ifndef YanXin_pch_pch
+#define YanXin_pch_pch
+
+// Include any system framework and library headers here that should be included in all compilation units.
+// You will also need to set the Prefix Header build setting of one or more of your targets to reference this file.
+#import "ShouYeViewController.h"
+#import "YanYuanVC.h"
+#import "YanShangVC.h"
+#import "YanYiQuanVC.h"
+#import "AFNetworking.h"//数据请求
+#import "UIKit+AFNetworking.h"//异步加载图片
+#import "Model1.h"
+#import "UIImageView+WebCache.h"
+#import "UIButton+WebCache.h"
+#import "FrameAutoScaleLFL.h"
+#import "UIView+SDAutoLayout.h"
+#import "UIWindow+YzdHUD.h"
+#import "MessageModel.h"
+#import "ShuJuModel.h"
+#import "UITableView+SDAutoTableViewCellHeight.h"
+#import "SDWeiXinPhotoContainerView.h"
+#import "NSString+Addtion.h"//清除缓存
+#import "SDCycleScrollView.h"
+#import <UIKit/UIKit.h>
+#import <Foundation/Foundation.h>
+#import "MJRefresh.h"
+#import "LCProgressHUD.h"
+#import "ToolClass.h"
+#import "Engine.h"
+#import "MMZCViewController.h"
+#define KUAN  [UIScreen mainScreen].bounds.size.width
+#define GAO   [UIScreen mainScreen].bounds.size.height
+//119.29.83.154  192.168.1.103
+#define SER_VICE @"http://119.29.83.154:8080/YanXinManage/"
+#define ScreenWidth CGRectGetMaxX([UIScreen mainScreen].bounds)
+#define ScreenHight CGRectGetMaxY([UIScreen mainScreen].bounds)
+#define WINDOW [[[UIApplication sharedApplication] delegate] window]
+#define IOS8 [[[UIDevice currentDevice] systemVersion]floatValue]>=8.0
+#define biaoti 17
+#define NSUSE_DEFO [NSUserDefaults standardUserDefaults]
+#define JXColor(r, g, b, a) [UIColor colorWithRed:(r)/255.0 green:(g)/255.0 blue:(b)/255.0 alpha:(a)]
+#define COLOR  [UIColor colorWithRed:236/255.0 green:236/255.0 blue:236/255.0 alpha:1]
+#define DAO_COLOR  [UIColor colorWithRed:75/255.0 green:157/255.0 blue:249/255.0 alpha:1]
+#endif

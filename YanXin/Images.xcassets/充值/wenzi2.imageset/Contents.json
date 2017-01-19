@@ -1,0 +1,23 @@
+{
+  "images" : [
+    {
+      "idiom" : "universal",
+      "filename" : "温馨提示-级别越高，搜索排名越靠前，演出机会越多哦~-获得意外的财富越大啊！.png",
+      "scale" : "1x"
+    },
+    {
+      "idiom" : "universal",
+      "filename" : "温馨提示-级别越高，搜索排名越靠前，演出机会越多哦~-获得意外的财富越大啊！@2x.png",
+      "scale" : "2x"
+    },
+    {
+      "idiom" : "universal",
+      "filename" : "温馨提示-级别越高，搜索排名越靠前，演出机会越多哦~-获得意外的财富越大啊！@3x.png",
+      "scale" : "3x"
+    }
+  ],
+  "info" : {
+    "version" : 1,
+    "author" : "xcode"
+  }
+}
