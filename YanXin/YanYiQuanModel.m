@@ -28,6 +28,35 @@
         self.picNamesArray=imglistArr;
         self.pingLun=[dyInfoDic objectForKey:@"discussList"];
         self.zan=[dyInfoDic objectForKey:@"praiseList"];
+        NSMutableArray *tempLikes=[NSMutableArray new];
+       
+        for(NSDictionary * zandicc in self.zan){
+            SDTimeLineCellLikeItemModel *zan =[SDTimeLineCellLikeItemModel new];
+            zan.userName=[zandicc objectForKey:@"name"];
+            zan.userId=[NSString stringWithFormat:@"%@",[zandicc objectForKey:@"account"]];
+            [tempLikes addObject:zan];
+        }
+        self.likeItemsArray = [tempLikes copy];
+        
+        
+        NSMutableArray *tempComments = [NSMutableArray new];
+        
+        
+        for(NSDictionary * dicc in self.pingLun){
+            SDTimeLineCellCommentItemModel *commentItemModel = [SDTimeLineCellCommentItemModel new];
+            commentItemModel.firstUserName=[dicc objectForKey:@"disname"];
+            commentItemModel.firstUserId = [dicc objectForKey:@"disaccount"];
+            commentItemModel.secondUserName=[dicc objectForKey:@"berepliedname"];
+            commentItemModel.secondUserId=[dicc objectForKey:@"berepliedaccount"];
+            commentItemModel.commentString =[dicc objectForKey:@"content"];
+            [tempComments addObject:commentItemModel];
+            
+        }
+        self.commentItemsArray = [tempComments copy];
+        
+        
+        
+        // self.likeItemsArray=[dyInfoDic objectForKey:@"praiseList"];
         self.renjiaID=[[dyInfoDic objectForKey:@"id"] intValue];
         // NSLog(@"我是解析出啦的图片的个数%lu",(unsigned long)self.picNamesArray.count);
         self.zhucehao=[self string:[dyInfoDic objectForKey:@"account"]];

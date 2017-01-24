@@ -177,7 +177,38 @@
 #pragma mark --上传证件照片按钮
 -(void)btnn:(UIButton*)btn{
       _lastBtn=btn;
+    
+    UIAlertController * actionView =[UIAlertController alertControllerWithTitle:@"请选择照片来源" message:@"" preferredStyle:UIAlertControllerStyleActionSheet];
+    UIAlertAction * action1 =[UIAlertAction actionWithTitle:@"相机" style:0 handler:^(UIAlertAction * _Nonnull action) {
+        
+        // 先判断相机是否可用
+        if ([UIImagePickerController isSourceTypeAvailable:UIImagePickerControllerSourceTypeCamera])
+        {
+            // 把imagePicker.sourceType改为相机
+            UIImagePickerController * imagePicker=[[UIImagePickerController alloc]init];
+            imagePicker.delegate =self;
+            imagePicker.sourceType = UIImagePickerControllerSourceTypeCamera;
+            [self presentViewController:imagePicker animated:YES completion:nil];
+        }else
+        {
+            [LCProgressHUD showMessage:@"相机不可用"];
+        }
+
+        
+    }];
+    UIAlertAction * action2 =[UIAlertAction actionWithTitle:@"相册" style:0 handler:^(UIAlertAction * _Nonnull action){
     [self headImageClick];
+    }];
+     UIAlertAction * action3 =[UIAlertAction actionWithTitle:@"取消" style:UIAlertActionStyleCancel handler:nil];
+    [actionView addAction:action1];
+    [actionView addAction:action2];
+    [actionView addAction:action3];
+    [self presentViewController:actionView animated:YES completion:nil];
+
+    
+    
+    
+   //
     
 }
 
@@ -186,7 +217,6 @@
 #pragma mark --调用系统相册
 -(void)headImageClick{
     UIImagePickerController * imagePicker =[UIImagePickerController new];
-    // [imagePicker.navigationBar setBackgroundImage:[UIImage imageNamed:@"nav_bg1"] forBarMetrics:UIBarMetricsDefault];
     
     imagePicker.delegate = self;
     imagePicker.sourceType=UIImagePickerControllerSourceTypeSavedPhotosAlbum;
@@ -195,6 +225,8 @@
 }
 - (void)imagePickerController:(UIImagePickerController *)picker didFinishPickingImage:(UIImage *)image editingInfo:(NSDictionary *)editingInfo
 {
+    NSLog(@"%@",editingInfo);
+    
     [_lastBtn setBackgroundImage:image forState:0];
     if (_lastBtn.tag==0) {
         _image1=image;
@@ -217,6 +249,11 @@
     NSLog(@"证件号码%@", nameText2.text);
     NSLog(@"image1=%@",_image1);
      NSLog(@"image2=%@",_image2);
+    
+//    ChongZhiVC * vc =[ChongZhiVC new];
+//    [self.navigationController pushViewController:vc animated:YES];
+    
+    
     [LCProgressHUD showMessage:@"正在提交..."];
     [Engine shiMingRenZhengRealName:nameText.text IdCard:nameText2.text ImageZ:_image1 ImageF:_image2 success:^(NSDictionary *dic) {
         [LCProgressHUD showMessage:[dic objectForKey:@"msg"]];

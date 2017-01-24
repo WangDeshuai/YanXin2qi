@@ -11,6 +11,8 @@
 @interface KeJiSuanVC ()<UITableViewDelegate,UITableViewDataSource>
 @property(nonatomic,strong)UITableView * tableView;
 @property(nonatomic,strong)NSArray * dataArray;
+@property(nonatomic,strong) UITextField * priceText;//提现金额
+@property(nonatomic,strong)UILabel * priceLable;//当前积分
 @end
 
 @implementation KeJiSuanVC
@@ -18,7 +20,7 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view.
-    _dataArray=@[@"银行卡号",@"持卡人姓名"];
+    _dataArray=@[@"支付宝账号:",@"支付宝姓名:"];
     [self CreatTabelView];
     [self CreatView];
 }
@@ -54,7 +56,7 @@
     //财富明细
     UIButton * caiFuBtn =[UIButton buttonWithType:UIButtonTypeCustom];
     [caiFuBtn setBackgroundImage:[UIImage imageNamed:@"cf_bt"] forState:0];
-    [bgView sd_addSubviews:@[caiFuBtn]];
+   // [bgView sd_addSubviews:@[caiFuBtn]];
     caiFuBtn.sd_layout
     .rightSpaceToView(bgView,15)
     .centerYEqualToView(nameLabel)
@@ -62,16 +64,33 @@
     .heightIs(15);
     
     //price
-    UILabel * priceLable =[UILabel new];
-    priceLable.text=@"1114.05";
-    priceLable.font=[UIFont systemFontOfSize:50 weight:.01];
-    priceLable.textColor=JXColor(75, 157, 249, 1);
-    [bgView sd_addSubviews:@[priceLable]];
-    priceLable.sd_layout
+     _priceLable =[UILabel new];
+    _priceLable.text=@"1114.05";
+    _priceLable.font=[UIFont systemFontOfSize:50 weight:.01];
+    _priceLable.textColor=JXColor(75, 157, 249, 1);
+    _priceLable.textAlignment=1;
+    [bgView sd_addSubviews:@[_priceLable]];
+    _priceLable.sd_layout
     .centerYEqualToView(bgView)
     .centerXEqualToView(bgView)
     .heightIs(40);
-    [priceLable setSingleLineAutoResizeWithMaxWidth:ScreenWidth];
+    [_priceLable setSingleLineAutoResizeWithMaxWidth:ScreenWidth];
+    
+    //查询积分
+    [Engine ChaXunShengYuJiFensuccess:^(NSDictionary *dic) {
+        NSString * code =[NSString stringWithFormat:@"%@",[dic objectForKey:@"code"]];
+        if ([code isEqualToString:@"1"]) {
+            _priceLable.text=[ToolClass isString:[NSString stringWithFormat:@"%@",[dic objectForKey:@"content"]]];
+        }else
+        {
+            [LCProgressHUD showMessage:[dic objectForKey:@"msg"]];
+        }
+    } error:^(NSError *error) {
+        
+    }];
+    
+    
+    
     
     return headView;
 }
@@ -83,10 +102,11 @@
     }
     _tableView.dataSource=self;
     _tableView.delegate=self;
-    _tableView.backgroundColor=[UIColor redColor];
+    _tableView.backgroundColor=COLOR;
     _tableView.tableHeaderView=[self CraetTabelViewHead];
      self.tableView.keyboardDismissMode = UIScrollViewKeyboardDismissModeOnDrag;
     _tableView.tableFooterView=[UIView new];
+    _tableView.rowHeight=50;
     [self.view addSubview:_tableView];
     
 }
@@ -101,7 +121,11 @@
         UILabel * namelabel =[UILabel new];
         namelabel.tag=1;
         [cell sd_addSubviews:@[namelabel]];
+        UITextField * textfield =[[UITextField alloc]init];
+        textfield.tag=2;
+        [cell sd_addSubviews:@[textfield]];
     }
+    cell.selectionStyle=UITableViewCellSelectionStyleNone;
     UILabel * namelabel =[cell viewWithTag:1];
     namelabel.alpha=.7;
     namelabel.font=[UIFont systemFontOfSize:15];
@@ -112,8 +136,14 @@
     .heightIs(20);
     [namelabel setSingleLineAutoResizeWithMaxWidth:220];
     
-    
-    
+    UITextField * textfield =[cell viewWithTag:2];
+    textfield.font=[UIFont systemFontOfSize:15];
+    textfield.placeholder=@"未填写";
+    textfield.sd_layout
+    .leftSpaceToView(namelabel,10)
+    .rightSpaceToView(cell,15)
+    .centerYEqualToView(cell)
+    .heightIs(40);
     return cell;
 }
 
@@ -125,11 +155,11 @@
     //
     UIView * bgview =[UIView new];
     bgview.backgroundColor=[UIColor whiteColor];
-    bgview.frame=CGRectMake(0, d, ScreenWidth, 150);
+    bgview.frame=CGRectMake(0, d, ScreenWidth, 250);
     [_tableView addSubview:bgview];
     
     UILabel *nameLabel =[UILabel new];
-    nameLabel.text=@"提现金额";
+    nameLabel.text=@"提现积分";
     nameLabel.font=[UIFont systemFontOfSize:14];
     nameLabel.alpha=.6;
     [bgview sd_addSubviews:@[nameLabel]];
@@ -150,29 +180,124 @@
     .heightIs(20);
     
     //price
-    UITextField * priceText =[UITextField new];
-    priceText.placeholder=@"请输入提现金额";
-    priceText.font=[UIFont systemFontOfSize:16];
-    priceText.keyboardType=UIKeyboardTypeNumberPad;
-    [bgview sd_addSubviews:@[priceText]];
-    priceText.sd_layout
+    _priceText =[UITextField new];
+    _priceText.placeholder=@"请输入提现积分";
+    _priceText.font=[UIFont systemFontOfSize:16];
+    _priceText.keyboardType=UIKeyboardTypeNumberPad;
+    [bgview sd_addSubviews:@[_priceText]];
+    _priceText.sd_layout
     .leftSpaceToView(price,15)
     .rightSpaceToView(bgview,20)
     .centerYEqualToView(price)
     .heightIs(30);
     //底部价格
     UILabel * botmLabel =[UILabel new];
-    botmLabel.text=[NSString stringWithFormat:@"可用提取财富%@",priceText.text];
     botmLabel.font=[UIFont systemFontOfSize:15];
     botmLabel.alpha=.6;
     [bgview sd_addSubviews:@[botmLabel]];
     botmLabel.sd_layout
     .centerXEqualToView(bgview)
     .heightIs(20)
-    .bottomSpaceToView(bgview,10);
+    .topSpaceToView(_priceText,20);
     [botmLabel setSingleLineAutoResizeWithMaxWidth:ScreenWidth];
+    
+    //查询积分
+    [Engine ChaXunShengYuJiFensuccess:^(NSDictionary *dic) {
+        NSString * code =[NSString stringWithFormat:@"%@",[dic objectForKey:@"code"]];
+        if ([code isEqualToString:@"1"]) {
+             botmLabel.text=[NSString stringWithFormat:@"可用提取财富%@",[dic objectForKey:@"content"]];
+        }else
+        {
+            [LCProgressHUD showMessage:[dic objectForKey:@"msg"]];
+        }
+    } error:^(NSError *error) {
+        
+    }];
+    
+    
+    
+    
+    
+    
+    
+    UIButton *tiXianBtn =[UIButton buttonWithType: UIButtonTypeCustom];
+    tiXianBtn.sd_cornerRadius=@(5);
+    tiXianBtn.backgroundColor=DAO_COLOR;
+    tiXianBtn.titleLabel.font=[UIFont systemFontOfSize:15];
+    [tiXianBtn setTitle:@"立即提现" forState:0];
+    [tiXianBtn addTarget:self action:@selector(tixianButton) forControlEvents:UIControlEventTouchUpInside];
+    [tiXianBtn setTitleColor:[UIColor whiteColor] forState:0];
+    [bgview setupAutoHeightWithBottomView:tiXianBtn bottomMargin:10];
+    [bgview sd_addSubviews:@[tiXianBtn]];
+    tiXianBtn.sd_layout
+    .topSpaceToView(botmLabel,20)
+    .leftSpaceToView(bgview,30)
+    .rightSpaceToView(bgview,30)
+    .heightIs(45);
 
-}/*
+}
+#pragma mark --提现按钮
+-(void)tixianButton{
+    
+    NSDate *date = [NSDate date];
+    
+    NSDateFormatter *formatter = [[NSDateFormatter alloc] init];
+    
+    
+    [formatter setDateStyle:NSDateFormatterMediumStyle];
+    
+    [formatter setTimeStyle:NSDateFormatterShortStyle];
+    
+    [formatter setDateFormat:@"dd"];
+    NSString *DateTime = [formatter stringFromDate:date];
+    NSLog(@"输出日期%@",DateTime);
+    if ([DateTime isEqualToString:@"5"] || [DateTime isEqualToString:@"15"] ||[DateTime isEqualToString:@"25"]) {
+        //支付宝账号
+        UITableViewCell * cell1 =[_tableView cellForRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:0]];
+        //支付宝姓名
+        UITableViewCell * cell2 =[_tableView cellForRowAtIndexPath:[NSIndexPath indexPathForRow:1 inSection:0]];
+        //提现金额_priceText
+        
+        UITextField * text1 =[cell1 viewWithTag:2];
+        UITextField * text2 =[cell2 viewWithTag:2];
+        
+        
+        
+        [Engine tixianMoneyPrice:[ToolClass isString:[NSString stringWithFormat:@"%@",_priceText.text]] ZhiFuBaoPay:[ToolClass isString:[NSString stringWithFormat:@"%@",text1.text]] ZhiFuBaoName:[ToolClass isString:[NSString stringWithFormat:@"%@",text2.text]] success:^(NSDictionary *dic)
+         {
+             [LCProgressHUD showMessage:[dic objectForKey:@"msg"]];
+             NSString * code =[NSString stringWithFormat:@"%@",[dic objectForKey:@"code"]];
+             if ([code isEqualToString:@"1"]) {
+                 _priceLable.text=[ToolClass isString:[NSString stringWithFormat:@"%@",[dic objectForKey:@"content"]]];
+                 UIAlertController * actionView =[UIAlertController alertControllerWithTitle:@"温馨提示" message:@"提现成功，请等待客服人员与您联系" preferredStyle:UIAlertControllerStyleAlert];
+                UIAlertAction * action2 =[UIAlertAction actionWithTitle:@"好" style:0 handler:nil];
+                 [actionView addAction:action2];
+                 [self presentViewController:actionView animated:YES completion:nil];
+
+             }else
+             {
+                 [LCProgressHUD showMessage:[dic objectForKey:@"msg"]];
+             }
+         } error:^(NSError *error) {
+             
+         }];
+    }
+    else{
+        UIAlertController * actionView =[UIAlertController alertControllerWithTitle:@"温馨提示" message:@"请于每月5日 15日 25日申请提现" preferredStyle:UIAlertControllerStyleAlert];
+     
+        UIAlertAction * action2 =[UIAlertAction actionWithTitle:@"好" style:0 handler:nil];
+        [actionView addAction:action2];
+        [self presentViewController:actionView animated:YES completion:nil];
+
+    }
+    
+    
+    
+
+}
+
+
+/*
 #pragma mark - Navigation
 
 // In a storyboard-based application, you will often want to do a little preparation before navigation

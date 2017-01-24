@@ -50,9 +50,11 @@
     _timeLabel=[UILabel new];
     _contentLabel=[UILabel new];
     _picContainerView=[SDWeiXinPhotoContainerView new];
-    
-    
-    [self.contentView sd_addSubviews:@[_headImage,_nameLabel,_renZhengImage,_timeLabel,_contentLabel,_picContainerView]];
+    _deleteBtn=[UIButton buttonWithType:UIButtonTypeCustom];
+    _deleteBtn=[UIButton buttonWithType:UIButtonTypeCustom];
+   
+
+    [self.contentView sd_addSubviews:@[_headImage,_nameLabel,_renZhengImage,_timeLabel,_contentLabel,_picContainerView,_deleteBtn]];
     //属性
     _headImage.sd_cornerRadius=@(60/2);
     _nameLabel.font=[UIFont systemFontOfSize:15];
@@ -62,6 +64,10 @@
     _contentLabel.font=[UIFont systemFontOfSize:15];
     _contentLabel.alpha=.8;
     _contentLabel.numberOfLines=0;
+     [_deleteBtn setTitle:@"删除" forState:0];
+    _deleteBtn.titleLabel.font=[UIFont systemFontOfSize:14];
+    [_deleteBtn setTitleColor:DAO_COLOR forState:0];
+    _deleteBtn.hidden=YES;
    //赋值
     _headImage.image=[UIImage imageNamed:@"messege_big"];
     _nameLabel.text=@"熊宇";
@@ -101,6 +107,15 @@
     .topSpaceToView(_nameLabel,10)
     .heightIs(20);
     [_timeLabel setSingleLineAutoResizeWithMaxWidth:ScreenWidth];
+    //删除按钮
+    _deleteBtn.sd_layout
+    .leftSpaceToView(_timeLabel,10)
+    .centerYEqualToView(_timeLabel)
+    .widthIs(50)
+    .heightIs(30);
+    
+    
+    
     //内容
     _contentLabel.sd_layout
     .leftEqualToView(_headImage)
@@ -136,7 +151,10 @@
     _picContainerView.picPathStringsArray=model.headImageArr;
     
 }
-
+#pragma mark --删除按钮点击事件
+//-(void)buttonClickBtn:(UIButton*)btn{
+//    self.buttonBlocl(btn);
+//}
 - (void)setSelected:(BOOL)selected animated:(BOOL)animated {
     [super setSelected:selected animated:animated];
 

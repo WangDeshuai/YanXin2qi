@@ -55,6 +55,7 @@
         addBtn.tag=30;
         [cell sd_addSubviews:@[addBtn]];
     }
+    cell.selectionStyle=UITableViewCellSelectionStyleNone;
     UILabel * nameLabel =[cell viewWithTag:10];
     nameLabel.font=[UIFont systemFontOfSize:15];
     nameLabel.alpha=.8;
@@ -165,6 +166,10 @@
     for (int i =0; i<_dataArray.count; i++) {
         UITableViewCell * cell =[_tableView cellForRowAtIndexPath:[NSIndexPath indexPathForRow:i inSection:0]];
         UITextField * textfield =[cell viewWithTag:20];
+        if ([textfield.text isEqualToString:@""] ||textfield.text==nil || textfield.text.length==0) {
+            [LCProgressHUD showMessage:@"视频连接不能为空"];
+            return;
+        }
         [_contentArray addObject:textfield.text];
     }
     if (_contentArray.count!=0) {

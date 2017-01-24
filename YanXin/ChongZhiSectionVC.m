@@ -25,7 +25,6 @@
 @property(nonatomic,strong)NSArray * dataArray;
 @property(nonatomic,strong)NSArray * btnArray;
 @property(nonatomic,strong)NSArray * seleArray;
-@property(nonatomic,strong)TanKuangView * tanKuangView;
 @property(nonatomic,strong)NSMutableArray * vipArray;
 @property(nonatomic,assign)NSInteger indexpath;//记录VIP几的
 @property(nonatomic,assign)NSInteger indexRow;//记录点击的是第几行(0，支付宝；1，微信)
@@ -45,7 +44,71 @@
     _vipArray=[NSMutableArray new];
     [self CreatTabelView];
     [self CteatButton];
-  }
+    
+    //获取通知中心单例对象
+    NSNotificationCenter * center = [NSNotificationCenter defaultCenter];
+    //添加当前类对象为一个观察者，name和object设置为nil，表示接收一切通知
+    [center addObserver:self selector:@selector(notice:) name:@"safepay" object:nil];
+    
+    [center addObserver:self selector:@selector(weiXin) name:@"WX_PaySuccess" object:nil];
+
+}
+
+#pragma mark --支付宝返回的结果
+-(void)notice:(NSNotification*)sender{
+    NSString * str =[NSString stringWithFormat:@"%@",[sender.userInfo objectForKey:@"resultStatus"]];
+    NSLog(@"是促成结果%@",str);
+    if ([str isEqualToString:@"9000"]) {
+         TanKuangView* tanKuangView=[[TanKuangView alloc]initWithChongZhiTitle:@"         恭喜您即将成为中国演出网\r\r实名认证会员，通过审核后您即将获得唯一演信号。" ContentName:@"重要提示，邀请好友记得让他输入您的演信号，会有惊喜哦。" cacleBtn:@"我知道了!"];
+        [tanKuangView show];
+        __weak __typeof(tanKuangView)weakSelf = tanKuangView;
+        
+        tanKuangView.BtnClickBlock=^(UIButton*btn){
+            [weakSelf dissmiss];
+            UIAlertController * actionView =[UIAlertController alertControllerWithTitle:@"温馨提示" message:@"请您退出重新登录" preferredStyle:UIAlertControllerStyleAlert];
+            UIAlertAction * action1 =[UIAlertAction actionWithTitle:@"好" style:0 handler:^(UIAlertAction * _Nonnull action) {
+                [NSUSE_DEFO removeObjectForKey:@"username"];
+                [self.navigationController popToRootViewControllerAnimated:YES];
+            }];
+            
+            [actionView addAction:action1];
+            [self presentViewController:actionView animated:YES completion:nil];
+            
+        };
+        
+        
+    }else{
+        [LCProgressHUD showMessage:@"充值失败"];
+    }
+    
+}
+#pragma mark --微信返回的结果
+-(void)weiXin{
+    
+    TanKuangView* tanKuangView=[[TanKuangView alloc]initWithChongZhiTitle:@"         恭喜您即将成为中国演出网\r\r实名认证会员，通过审核后您即将获得唯一演信号。" ContentName:@"重要提示，邀请好友记得让他输入您的演信号，会有惊喜哦。" cacleBtn:@"我知道了!"];
+    [tanKuangView show];
+    __weak __typeof(tanKuangView)weakSelf = tanKuangView;
+    
+    tanKuangView.BtnClickBlock=^(UIButton*btn){
+        [weakSelf dissmiss];
+        UIAlertController * actionView =[UIAlertController alertControllerWithTitle:@"温馨提示" message:@"请您退出重新登录" preferredStyle:UIAlertControllerStyleAlert];
+        UIAlertAction * action1 =[UIAlertAction actionWithTitle:@"好" style:0 handler:^(UIAlertAction * _Nonnull action) {
+            [NSUSE_DEFO removeObjectForKey:@"username"];
+            [self.navigationController popToRootViewControllerAnimated:YES];
+        }];
+        
+        [actionView addAction:action1];
+        [self presentViewController:actionView animated:YES completion:nil];
+        
+    };
+    
+    
+}
+
+
+
+
+
 
 #pragma mark --获取网络数据接口
 -(void)getShengJi{
@@ -161,8 +224,8 @@
                 button.alpha=.6;
                 if (i==0) {
                     button.layer.borderWidth=.5;
-                    button.layer.borderColor=[UIColor greenColor].CGColor;
-                    button.textColor=[UIColor greenColor];
+                    button.layer.borderColor=JXColor(244, 15, 0, 1).CGColor;
+                    button.textColor=JXColor(244, 15, 0, 1);
                      button.alpha=1;
                     _lastLab=button;
                 }
@@ -203,16 +266,16 @@
     nameLabel.alpha=1;
     if (tapp.view.tag==0) {
         nameLabel.layer.borderWidth=.5;
-        nameLabel.layer.borderColor=[UIColor greenColor].CGColor;
-        nameLabel.textColor=[UIColor greenColor];
+        nameLabel.layer.borderColor=JXColor(244, 15, 0, 1).CGColor;
+        nameLabel.textColor=JXColor(244, 15, 0, 1);
     }else if (tapp.view.tag==1){
         nameLabel.layer.borderWidth=.5;
         nameLabel.layer.borderColor=JXColor(244, 15, 0, 1).CGColor;
         nameLabel.textColor=JXColor(244, 15, 0, 1);
     }else{
         nameLabel.layer.borderWidth=.5;
-        nameLabel.layer.borderColor=JXColor(71, 153, 245, 1).CGColor;
-        nameLabel.textColor=JXColor(71, 153, 245, 1);
+        nameLabel.layer.borderColor=JXColor(244, 15, 0, 1).CGColor;
+        nameLabel.textColor=JXColor(244, 15, 0, 1);
     }
     _lastLab=nameLabel;
     
@@ -364,7 +427,7 @@
             if ([code isEqualToString:@"1"]) {
                 //订单号是
                 NSString * dingDanNum =[ToolClass isString:[NSString stringWithFormat:@"%@",[dic objectForKey:@"content"]]];
-                [self zhifujiemian:dingDanNum biaotii:md.shengJiMaoShu jiage:@"0.01" miaoshu:md.shengJiMaoShu];
+                [self zhifujiemian:dingDanNum biaotii:md.shengJiMaoShu jiage:md.vipPrice miaoshu:md.shengJiMaoShu];
             }else
             {
                 [LCProgressHUD showMessage:[dic objectForKey:@"msg"]];
@@ -378,13 +441,7 @@
     }
     
     
-//    _tanKuangView=[[TanKuangView alloc]initWithChongZhiTitle:@"         恭喜您即将成为中国演出网\r\r实名认证会员，通过审核后您即将获得唯一演信号。" ContentName:@"重要提示，邀请好友记得让他输入您的演信号，会有惊喜哦。" cacleBtn:@"我知道了!"];
-//    [_tanKuangView show];
-//    __weak __typeof(self)weakSelf = self;
-//    
-//    _tanKuangView.BtnClickBlock=^(UIButton*btn){
-//        [weakSelf.tanKuangView dissmiss];
-//    };
+
 }
 
 #pragma mark --支付宝支付
@@ -480,7 +537,7 @@
 -(void)daohangTiao{
     self.navigationController.navigationBar.barTintColor=JXColor(75, 157, 249, 1);
     self.view.backgroundColor=[UIColor whiteColor];
-    self.title=@"充值";
+    self.title=@"会员升级充值";
     [self.navigationController.navigationBar setTitleTextAttributes:@{NSForegroundColorAttributeName:[UIColor whiteColor],NSFontAttributeName:[UIFont systemFontOfSize:biaoti]}];
     //返回按钮
     UIButton*backBtn=[UIButton buttonWithType:UIButtonTypeCustom];

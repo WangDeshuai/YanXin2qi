@@ -30,8 +30,8 @@
         _lineImage.sd_layout
         .topSpaceToView(self.contentView,20)
         .leftSpaceToView(self.contentView,15)
-        .widthIs(70)
-        .heightIs(70);
+        .widthIs(100)
+        .heightIs(100);
         
         _nameLab.sd_layout
         .topEqualToView(_lineImage)

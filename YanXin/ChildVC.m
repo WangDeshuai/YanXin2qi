@@ -95,16 +95,26 @@
             NSArray *arr2 =[dic objectForKey:@"content"];
             NSMutableArray * titleArr =[NSMutableArray new];
             NSMutableArray * picArray =[NSMutableArray new];
+            NSMutableArray * jumpUrl =[NSMutableArray new];
             for (NSDictionary * bgDic2 in arr2){
                 NSString * title =[bgDic2 objectForKey:@"title"];
                 NSString * picUrl =[bgDic2 objectForKey:@"imgurl"];
                 [titleArr addObject:title];
                 [picArray addObject:picUrl];
+                [jumpUrl addObject:[bgDic2 objectForKey:@"jumpUrl"]];
             }
             dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.3 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
                  cycleScrollView2.imageURLStringsGroup = picArray;
             });
             cycleScrollView2.titlesGroup = titleArr;
+            
+            
+            cycleScrollView2.clickItemOperationBlock = ^(NSInteger index) {
+                NSURL *movieUrl = [NSURL URLWithString:jumpUrl[index]];
+                [[UIApplication sharedApplication] openURL:movieUrl];
+            };
+            
+            
             
         } error:^(NSError *error) {
             
@@ -180,7 +190,9 @@
 {
     YanShangModel * md =_dataArray[indexPath.row];
     YanShangXiQVC * vc =[YanShangXiQVC new];
-    vc.accountPhone=md.yanShangAccount;
+    vc.accountPhone=md.yanShangAccount;//把手机号传过去
+    vc.titleImage=md.headImageUrl;//把公司图片url传过去
+    vc.titleName=md.title;//把公司名字传到下级界面
     vc.hidesBottomBarWhenPushed=YES;
     [self.navigationController pushViewController:vc animated:YES];;
 }

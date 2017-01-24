@@ -12,11 +12,18 @@
 #import "DFBrowserController.h"//上传图片
 #import "UpDownVidioVC.h"//上传视频
 #import "ZhiYeClassVC.h"//选择职业
-@interface CreatYanYuanZiLiaoVC ()<UITableViewDelegate,UITableViewDataSource,DFAssetDelegate,DFPhotoBrowserDelegate,DFPresentedProtocol>
+#import "SGImagePickerController.h"//相片选择
+@interface CreatYanYuanZiLiaoVC ()<UITableViewDelegate,UITableViewDataSource,UITextViewDelegate>
 @property(nonatomic,strong)UITableView * tableView;
 @property(nonatomic,strong)NSArray * dataArray;
 @property (nonatomic, strong) NSArray *photoArray;
-@property (nonatomic, strong) DFBrowserAnimator *borwserAnimator;
+@property(nonatomic,strong)UITextView * lastView;
+//记录个人简介
+@property(nonatomic,copy)NSString * jianJie;
+//记录经历
+@property(nonatomic,copy)NSString * jingLi;
+
+
 //存放图片的按钮用来取消
 @property(nonatomic,strong)NSMutableArray * buttonArray;
 //存放视频按钮的数组，用来删除
@@ -37,7 +44,6 @@
     [super viewDidLoad];
     // Do any additional setup after loading the view.
     [self daohangTiao];
-    self.borwserAnimator = [[DFBrowserAnimator alloc] init];
     [self CreatArray];
     [self CreatTabelView];
 }
@@ -93,7 +99,17 @@
     2.把得到的地址，转化为json字符串，给了上传演员资料接口
     3.把视频数组转换为json字符串（视频需要判断，是不是空的）
     */
-    [self photoJsonStr];
+    
+//    UITableViewCell * cell1 =[_tableView cellForRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:1]];
+//    UITableViewCell * cell2 =[_tableView cellForRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:2]];
+//    UITextView * textfield1 =[cell1 viewWithTag:100];
+//    UITextView * textfield2 =[cell2 viewWithTag:200];
+//    NSLog(@"个人简介%@",textfield1.text);
+//    NSLog(@"演艺经历%@",textfield2.text);
+//    ShiMingRenZhengVC * vc =[ShiMingRenZhengVC new];
+//    [self.navigationController pushViewController:vc animated:YES];
+
+   [self photoJsonStr];
     
 }
 #pragma mark --视频转换字符串
@@ -120,12 +136,12 @@
 
 #pragma mark --图片转换字符串
 -(void)photoJsonStr{
-    if (_zhaoPianArr.count==0) {
+    if (_photoArray.count==0) {
         [LCProgressHUD showMessage:@"照片是必填项"];
     }else{
         NSMutableArray * arrzhao =[NSMutableArray new];
-        for (int i =0; i<_zhaoPianArr.count; i++ ) {
-            UIImage * image =_zhaoPianArr[i];
+        for (int i =0; i<_photoArray.count; i++ ) {
+            UIImage * image =_photoArray[i];
             NSData * imgData=  UIImageJPEGRepresentation(image, 0);
             NSString * endStr =[imgData base64EncodedStringWithOptions:NSDataBase64Encoding64CharacterLineLength];
             [arrzhao addObject:endStr];
@@ -141,7 +157,7 @@
                     NSString * imageName =[NSString stringWithFormat:@"img%d",i];
                     NSMutableDictionary * imageDic =[NSMutableDictionary new];
                     [imageDic setObject:imageName forKey:@"img_name"];
-                    [imageDic setObject:contentArr[i] forKey:@"url"];
+                    [imageDic setObject:contentArr[i] forKey:@"img_url"];
                     [shangChuanPhoto addObject:imageDic];
                 }
                 
@@ -183,7 +199,7 @@
     NSLog(@"演艺经历%@",textfield2.text);
     NSLog(@"职业%@",[ToolClass isString:_zhiYeNum]);
     ;
-    NSLog(@"图片%@",_zhaoPianArr);
+    NSLog(@"图片%@",_photoArray);
     NSLog(@"视频%@",_viodoArr);
 
      [LCProgressHUD showMessage:@"正在提交..."];
@@ -226,6 +242,7 @@
         [cell sd_addSubviews:@[textfil]];
       
     }
+    cell.selectionStyle=UITableViewCellSelectionStyleNone;
     UILabel * nameLabel =[cell viewWithTag:10];
     nameLabel.font=[UIFont systemFontOfSize:15];
     nameLabel.alpha=.7;
@@ -267,12 +284,36 @@
         textfil.sd_layout.rightSpaceToView(cell,30)
         .widthIs(70).heightIs(30).centerYEqualToView(cell);
         textfil.textAlignment=2;
-        
-        textfil.text=_zhiYeName;
+        textfil.enabled=NO;
+        if (_zhiYeName==nil) {
+            textfil.text=@"请选择";
+        }else{
+           textfil.text=_zhiYeName;
+        }
+       
     }else if (indexPath.section==1){
         textfield.hidden=NO;//个人简介
+        textfield.delegate=self;
+        _lastView=textfield;
+        if (_jianJie==nil || [_jianJie isEqualToString:@""]) {
+             textfield.text=@"请您认真填写您的个人简介，个人简介越完善通过率越高";
+        }else{
+            textfield.text=_jianJie;
+        }
+       
+        textfield.alpha=.4;
+        textfield.font=[UIFont systemFontOfSize:14];
     }else if (indexPath.section==2){
         textfield.hidden=NO;//演艺经历
+        textfield.delegate=self;
+       
+        if (_jingLi==nil || [_jingLi isEqualToString:@""]) {
+            textfield.text=@"请您认真填写您的演艺经历，演艺经历越完善通过率越高";
+        }else{
+            textfield.text=_jingLi;
+        }
+        textfield.alpha=.4;
+        textfield.font=[UIFont systemFontOfSize:14];
     }
     else if (indexPath.section==3){
         //上传图片
@@ -290,6 +331,45 @@ else{
     
     return cell;
 }
+
+- (void)textViewDidBeginEditing:(UITextView *)textView{
+    if (textView==_lastView) {
+        if ([textView.text isEqualToString:@"请您认真填写您的个人简介，个人简介越完善通过率越高"]) {
+            textView.text=@"";
+            textView.alpha=.8;
+        }
+    }else{
+        if ([textView.text isEqualToString:@"请您认真填写您的演艺经历，演艺经历越完善通过率越高"]) {
+            textView.text=@"";
+            textView.alpha=.8;
+        }
+    }
+}
+- (void)textViewDidEndEditing:(UITextView *)textView{
+    if (textView==_lastView) {
+        if ([textView.text isEqualToString:@""]) {
+            textView.text=@"请您认真填写您的个人简介，个人简介越完善通过率越高";
+            textView.alpha=.4;
+        }else{
+            NSLog(@"输出%@",textView.text);
+            _jianJie=textView.text;
+        }
+    }else{
+        if ([textView.text isEqualToString:@""]) {
+            textView.text=@"请您认真填写您的演艺经历，演艺经历越完善通过率越高";
+            textView.alpha=.4;
+        }else{
+            _jingLi=textView.text;
+        }
+    }
+
+}
+
+
+
+
+
+
 #pragma mark --移除图片按钮
 -(void)remButton{
     for (UIButton * btn in _buttonArray) {
@@ -324,12 +404,13 @@ else{
             .centerYEqualToView(cell)
             .widthIs(72)
             .heightIs(72);
-            DFAssetModel *model = self.photoArray[i];
-            [[DFImageManager manager] getThumbnailPhotoWithAsset:model.asset newCompletion:^(UIImage *photo) {
-                NSLog(@"执行几次%d",i);
-                [imageview setBackgroundImage:photo forState:0];
-                [_zhaoPianArr addObject:photo];
-            }];
+             [imageview setBackgroundImage:self.photoArray[i] forState:0];
+//            DFAssetModel *model = self.photoArray[i];
+//            [[DFImageManager manager] getThumbnailPhotoWithAsset:model.asset newCompletion:^(UIImage *photo) {
+//                NSLog(@"执行几次%d",i);
+//               
+//                [_zhaoPianArr addObject:photo];
+//            }];
             
             //上传图片按钮重新布局
             if (i==0) {
@@ -450,7 +531,7 @@ else{
     }else if (section==3){
         nameLable.text=@"上传图片";
     }else if (section==4){
-        nameLable.text=@"上传视频";
+        nameLable.text=@"上传视频(选填)";
     }
     return bgView;
 }
@@ -465,9 +546,19 @@ else{
 
 #pragma mark --上传图片按钮
 -(void)imageUpdata{
-    DFThemeNav *nav = [[DFThemeNav alloc] initWithDelegate:self pushPhotoPickerVC:YES];
-    nav.selectedAssetArray = [NSMutableArray arrayWithArray:self.photoArray];
-    [self presentViewController:nav animated:YES completion:nil];
+    //就只需要这2步即可完成照片多选操作
+    SGImagePickerController *picker = [[SGImagePickerController alloc] init];
+    picker.maxCount = 3;
+    [picker setDidFinishSelectImages:^(NSMutableArray *images)
+     {
+        _photoArray=images ;
+         [_tableView reloadData];
+     }];
+    [self presentViewController:picker animated:YES completion:nil];
+    
+//    DFThemeNav *nav = [[DFThemeNav alloc] initWithDelegate:self pushPhotoPickerVC:YES];
+//    nav.selectedAssetArray = [NSMutableArray arrayWithArray:self.photoArray];
+//    [self presentViewController:nav animated:YES completion:nil];
 }
 #pragma mark --上传视频按钮
 -(void)vidioUpData{

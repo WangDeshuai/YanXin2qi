@@ -32,6 +32,7 @@
 @property (nonatomic, copy) NSString *content;//内容
 @property (nonatomic, copy) NSString *renZheng;//认证
 @property(nonatomic,strong)UIImage * vipImage;//vip等级
+@property(nonatomic,copy)NSString * nameGongSi;//公司名字
 @property(nonatomic,copy)NSString * yanShangID;
 @property(nonatomic,copy)NSString * yanShangAccount;
 -(id)initWithYanChuCommnyDic:(NSDictionary*)dic;

@@ -114,33 +114,44 @@
     _zhiye.text=model.categoryname;
     _zhiye.sd_layout.widthIs(zy);
     _xingbieImage.image=model.xingbieImage;
-    _shiMingImage.image=model.shiMingImage;
+    if (model.shiMingImage==nil) {
+        _shiMingImage.hidden=YES;
+        //实名认证
+        _VIPimage.sd_layout
+        .leftSpaceToView(_name,5)
+        .centerYEqualToView(_name)
+        .widthIs(40)
+        .heightIs(14);
+    }else{
+       _shiMingImage.image=model.shiMingImage;
+    }
+    
     [_lineImage sd_setImageWithURL:[NSURL URLWithString:model.headimgurl] placeholderImage:[UIImage imageNamed:@"头像占位图"]];
     
-    
-    //屏蔽支付宝功能
-    [ShuJuModel huoquVipTubiaosuccess:^(NSDictionary *dic) {
-        NSString * code =[NSString stringWithFormat:@"%@",[dic objectForKey:@"content"]];
-        if ([code isEqualToString:@"0"]) {
-            
-        }else{
-            [_VIPimage sd_setImageWithURL:[NSURL URLWithString:model.vipname]];
-            if ([model.viplevel isEqualToString:@"3"]) {
-                _name.textColor=[UIColor colorWithRed:184/255.0 green:36/255.0 blue:232/255.0 alpha:1];
-            }else if ([model.viplevel isEqualToString:@"2"]){
-                _name.textColor=[UIColor colorWithRed:228/255.0 green:43/255.0 blue:23/255.0 alpha:1];
-                
-            }else if([model.viplevel isEqualToString:@"1"]){
-                _name.textColor=[UIColor colorWithRed:208/255.0 green:163/255.0 blue:99/255.0 alpha:1];
-            }
-            else{
-                _name.textColor=[UIColor blackColor];
-            }
-
-        }
-        
-        
-    } error:nil];
+    _VIPimage.image=model.vipImage;
+//    //屏蔽支付宝功能
+//    [ShuJuModel huoquVipTubiaosuccess:^(NSDictionary *dic) {
+//        NSString * code =[NSString stringWithFormat:@"%@",[dic objectForKey:@"content"]];
+//        if ([code isEqualToString:@"0"]) {
+//            
+//        }else{
+//            [_VIPimage sd_setImageWithURL:[NSURL URLWithString:model.vipname]];
+//            if ([model.viplevel isEqualToString:@"3"]) {
+//                _name.textColor=[UIColor colorWithRed:184/255.0 green:36/255.0 blue:232/255.0 alpha:1];
+//            }else if ([model.viplevel isEqualToString:@"2"]){
+//                _name.textColor=[UIColor colorWithRed:228/255.0 green:43/255.0 blue:23/255.0 alpha:1];
+//                
+//            }else if([model.viplevel isEqualToString:@"1"]){
+//                _name.textColor=[UIColor colorWithRed:208/255.0 green:163/255.0 blue:99/255.0 alpha:1];
+//            }
+//            else{
+//                _name.textColor=[UIColor blackColor];
+//            }
+//
+//        }
+//        
+//        
+//    } error:nil];
     
     
     

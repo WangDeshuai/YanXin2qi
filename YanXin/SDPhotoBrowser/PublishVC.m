@@ -349,22 +349,25 @@
         NSLog(@"没东西");
         self.neirongTF.text=@"";
     }
-   // NSLog(@"这是东西%@",self.neirongTF.text);
+    if (self.neirongTF.text.length==0 || self.neirongTF.text==nil || [self.neirongTF.text isEqualToString:@""]) {
+        [LCProgressHUD showMessage:@"请填写内容"];
+    }else{
+        [ShuJuModel publishNeirong:self.neirongTF.text Image:self.itemsSectionPictureArray success:^(NSDictionary *dic) {
+            
+            NSString * code =[NSString stringWithFormat:@"%@",[dic objectForKey:@"code"]];
+            if ([code isEqualToString:@"1"]) {
+                // [WINDOW showHUDWithText:@"发布成功" Type:ShowPhotoYes Enabled:YES];
+                [LCProgressHUD showMessage:@"发布成功"];
+                [self.navigationController popViewControllerAnimated:YES];
+            }
+            
+        } error:^(NSError *error) {
+            
+        }];
+ 
+    }
     
-    [ShuJuModel publishNeirong:self.neirongTF.text Image:self.itemsSectionPictureArray success:^(NSDictionary *dic) {
-       
-        NSString * code =[NSString stringWithFormat:@"%@",[dic objectForKey:@"code"]];
-        if ([code isEqualToString:@"1"]) {
-            [WINDOW showHUDWithText:@"发布成功" Type:ShowPhotoYes Enabled:YES];
-           //  [LCLoadingHUD hideInKeyWindow];
-        //     NSLog(@"发布成功");
-            [self.navigationController popViewControllerAnimated:YES];
-        }
-      
-  } error:^(NSError *error) {
-      
-  }];
-
+ 
 }
 
 //- (IBAction)zhaopianBtn:(UIButton *)sender {

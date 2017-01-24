@@ -25,7 +25,6 @@
 @property(nonatomic,strong)NSArray * dataArray;
 @property(nonatomic,strong)NSArray * btnArray;
 @property(nonatomic,strong)NSArray * seleArray;
-@property(nonatomic,strong)TanKuangView * tanKuangView;
 @property(nonatomic,strong) UITextField * yanXinText;
 @property(nonatomic,strong)NSMutableArray * vipArray;//存放VIP数据的
 @property(nonatomic,assign)NSInteger indexpath;//记录VIP几的
@@ -47,7 +46,66 @@
     _vipArray=[NSMutableArray new];
     [self CreatTabelView];
     [self CteatButton];
+    //获取通知中心单例对象
+    NSNotificationCenter * center = [NSNotificationCenter defaultCenter];
+    //添加当前类对象为一个观察者，name和object设置为nil，表示接收一切通知
+    [center addObserver:self selector:@selector(notice:) name:@"safepay" object:nil];
+    
+    [center addObserver:self selector:@selector(weiXin) name:@"WX_PaySuccess" object:nil];
+    
+    
 }
+#pragma mark --支付宝返回的结果
+-(void)notice:(NSNotification*)sender{
+    NSString * str =[NSString stringWithFormat:@"%@",[sender.userInfo objectForKey:@"resultStatus"]];
+    NSLog(@"是促成结果%@",str);
+    if ([str isEqualToString:@"9000"]) {
+        TanKuangView*tanKuangView=[[TanKuangView alloc]initWithChongZhiTitle:@"         恭喜您即将成为中国演出网\r\r实名认证会员，通过审核后您即将获得唯一演信号。" ContentName:@"重要提示，邀请好友记得让他输入您的演信号，会有惊喜哦。" cacleBtn:@"我知道了!"];
+        [tanKuangView show];
+        __weak __typeof(tanKuangView)weakSelf = tanKuangView;
+        
+        tanKuangView.BtnClickBlock=^(UIButton*btn){
+            [weakSelf dissmiss];
+            UIAlertController * actionView =[UIAlertController alertControllerWithTitle:@"温馨提示" message:@"请您退出重新登录" preferredStyle:UIAlertControllerStyleAlert];
+            UIAlertAction * action1 =[UIAlertAction actionWithTitle:@"好" style:0 handler:^(UIAlertAction * _Nonnull action) {
+                [NSUSE_DEFO removeObjectForKey:@"username"];
+                [self.navigationController popToRootViewControllerAnimated:YES];
+            }];
+            
+            [actionView addAction:action1];
+            [self presentViewController:actionView animated:YES completion:nil];
+            
+        };
+        
+
+    }else{
+        [LCProgressHUD showMessage:@"充值失败"];
+    }
+    
+}
+#pragma mark --微信返回的结果
+-(void)weiXin{
+    TanKuangView*tanKuangView=[[TanKuangView alloc]initWithChongZhiTitle:@"         恭喜您即将成为中国演出网\r\r实名认证会员，通过审核后您即将获得唯一演信号。" ContentName:@"重要提示，邀请好友记得让他输入您的演信号，会有惊喜哦。" cacleBtn:@"我知道了!"];
+    [tanKuangView show];
+    __weak __typeof(tanKuangView)weakSelf = tanKuangView;
+    
+    tanKuangView.BtnClickBlock=^(UIButton*btn){
+        [weakSelf dissmiss];
+        UIAlertController * actionView =[UIAlertController alertControllerWithTitle:@"温馨提示" message:@"请您退出重新登录" preferredStyle:UIAlertControllerStyleAlert];
+        UIAlertAction * action1 =[UIAlertAction actionWithTitle:@"好" style:0 handler:^(UIAlertAction * _Nonnull action) {
+            [NSUSE_DEFO removeObjectForKey:@"username"];
+            [self.navigationController popToRootViewControllerAnimated:YES];
+        }];
+        
+        [actionView addAction:action1];
+        [self presentViewController:actionView animated:YES completion:nil];
+        
+    };
+    
+
+}
+
+
 #pragma mark --创建标头
 -(UIView*)CreatView{
     UIView * headView =[UIView new];
@@ -206,6 +264,10 @@
     .rightSpaceToView(view3,10)
     .centerYEqualToView(view3)
     .heightIs(20);
+    nameLabel2.userInteractionEnabled=YES;
+    UITapGestureRecognizer * tap =[[UITapGestureRecognizer alloc]initWithTarget:self action:@selector(tapp)];
+    [nameLabel2 addGestureRecognizer:tap];
+    
     
 //    view3.didFinishAutoLayoutBlock=^(CGRect rect){
 //        NSLog(@"我是%f", rect.size.height+rect.origin.y);
@@ -217,6 +279,17 @@
     return headView;
     
     
+}
+-(void)tapp{
+    UIAlertController * actionView =[UIAlertController alertControllerWithTitle:@"温馨提示" message:@"是否拨打客服电话18519186222" preferredStyle:UIAlertControllerStyleAlert];
+    UIAlertAction * action1 =[UIAlertAction actionWithTitle:@"是" style:0 handler:^(UIAlertAction * _Nonnull action) {
+        [ToolClass tellPhone:@"18519186222"];
+    }];
+    UIAlertAction * action2 =[UIAlertAction actionWithTitle:@"否" style:0 handler:nil];
+    [actionView addAction:action2];
+    [actionView addAction:action1];
+    [self presentViewController:actionView animated:YES completion:nil];
+
 }
 -(void)buttonClick:(UIButton*)btn{
     _lastBtn.selected=NO;
@@ -370,7 +443,7 @@
             if ([code isEqualToString:@"1"]) {
                 //订单号是
                 NSString * dingDanNum =[ToolClass isString:[NSString stringWithFormat:@"%@",[dic objectForKey:@"content"]]];
-                [self zhifujiemian:dingDanNum biaotii:md.vipDengJi jiage:@"0.01" miaoshu:md.vipMiaoShu];
+                [self zhifujiemian:dingDanNum biaotii:md.vipDengJi jiage:md.vipPrice miaoshu:md.vipMiaoShu];
                 
             }else
             {
@@ -391,13 +464,6 @@
     
     
     
-//    _tanKuangView=[[TanKuangView alloc]initWithChongZhiTitle:@"         恭喜您即将成为中国演出网\r\r实名认证会员，通过审核后您即将获得唯一演信号。" ContentName:@"重要提示，邀请好友记得让他输入您的演信号，会有惊喜哦。" cacleBtn:@"我知道了!"];
-//    [_tanKuangView show];
-//    __weak __typeof(self)weakSelf = self;
-//
-//    _tanKuangView.BtnClickBlock=^(UIButton*btn){
-//        [weakSelf.tanKuangView dissmiss];
-//    };
 }
 
 
@@ -450,6 +516,13 @@
             }
         }];
     }
+  
+    
+    
+    
+    
+    
+    
     
 }
 

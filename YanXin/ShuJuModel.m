@@ -325,11 +325,23 @@
     } if (xian==nil){
         xian=@"";
     }
+//    
+//    if (sheng) {
+//       
+//    }
+//    if (shi) {
+//        
+//    }
+//    if (xian) {
+//        
+//    }
     [dicc setObject:page forKey:@"pageIndex"];
     [dicc setObject:type forKey:@"type"];
     [dicc setObject:sheng forKey:@"provname"];
     [dicc setObject:shi forKey:@"cityname"];
     [dicc setObject:xian forKey:@"districtname"];
+   
+   
     
     [manage POST:urlstr parameters:dicc success:^(AFHTTPRequestOperation *operation, id responseObject) {
         
@@ -488,9 +500,9 @@
     [manager POST:urlstr parameters:parameters success:^(AFHTTPRequestOperation *operation, id responseObject) {
         
         
-//        NSData *data = [NSJSONSerialization dataWithJSONObject:responseObject options:NSJSONWritingPrettyPrinted error:nil];
-//        NSString *str = [[NSString alloc]initWithData:data encoding:NSUTF8StringEncoding];
-//        NSLog(@"演员数据%@",str);
+        NSData *data = [NSJSONSerialization dataWithJSONObject:responseObject options:NSJSONWritingPrettyPrinted error:nil];
+        NSString *str = [[NSString alloc]initWithData:data encoding:NSUTF8StringEncoding];
+        NSLog(@"演艺圈数据%@",str);
         
         
         
@@ -742,6 +754,9 @@
     }
     AFHTTPRequestOperationManager * manager =[AFHTTPRequestOperationManager manager];
     [manager POST:urlstr parameters:@{@"praccount":a,@"dyid":qid} success:^(AFHTTPRequestOperation *operation, id responseObject) {
+        NSData *data = [NSJSONSerialization dataWithJSONObject:responseObject options:NSJSONWritingPrettyPrinted error:nil];
+        NSString *str = [[NSString alloc]initWithData:data encoding:NSUTF8StringEncoding];
+        NSLog(@"上传点赞%@",str);
         aSuccess(responseObject);
     } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
         
@@ -858,6 +873,7 @@
     AFHTTPRequestOperationManager * manager =[AFHTTPRequestOperationManager manager];
    // NSLog(@">>>%@",urlstr);
     [manager GET:urlstr parameters:nil success:^(AFHTTPRequestOperation *operation, id responseObject) {
+        
         aSuccess(responseObject);
     } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
         
@@ -886,6 +902,9 @@
     AFHTTPRequestOperationManager * manager =[AFHTTPRequestOperationManager manager];
      NSLog(@"删除动态的>>>%@",urlstr);
     [manager GET:urlstr parameters:nil success:^(AFHTTPRequestOperation *operation, id responseObject) {
+        NSData *data = [NSJSONSerialization dataWithJSONObject:responseObject options:NSJSONWritingPrettyPrinted error:nil];
+        NSString *str = [[NSString alloc]initWithData:data encoding:NSUTF8StringEncoding];
+        NSLog(@"删除动态%@",str);
         aSuccess(responseObject);
     } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
         

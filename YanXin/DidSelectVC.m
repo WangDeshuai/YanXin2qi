@@ -7,10 +7,13 @@
 //
 
 #import "DidSelectVC.h"
-@interface DidSelectVC ()
+@interface DidSelectVC ()<UITableViewDelegate,UITableViewDataSource>
 
-@property(nonatomic,retain) NSMutableArray * daraArray;
+@property(nonatomic,retain) NSArray * daraArray;
 @property(nonatomic,retain) UIScrollView * bgScroller;
+@property(nonatomic,strong)UITableView * tableView;
+@property(nonatomic,strong)NSArray * nameArray;
+@property(nonatomic,strong)NSArray * imageArray;
 @end
 
 @implementation DidSelectVC
@@ -18,235 +21,176 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view from its nib.
-    self.title=@"演出公告";
     self.view.backgroundColor=[UIColor whiteColor];
-
-    _bgScroller=[[UIScrollView alloc]initWithFrame:CGRectMake(0, 0, KUAN, GAO)];
-    [self.view addSubview:_bgScroller];
-    
-    UILabel * titleLabel =[UILabel new];
-    titleLabel.text=_model.titleLabel;
-    titleLabel.textAlignment=1;
-    titleLabel.font=[UIFont systemFontOfSize:19];
-
-    UILabel * timeLabel = [UILabel new];
-    timeLabel.text=[NSString stringWithFormat:@"发布时间:  %@",_model.nowTime];
-    timeLabel.textColor=[UIColor grayColor];
-    timeLabel.alpha=.9;
-    timeLabel.font=[UIFont systemFontOfSize:15];
-
-    UIImageView * imageview =[UIImageView new];
-    [imageview sd_setImageWithURL:[NSURL URLWithString:_model.imageview] placeholderImage:[UIImage imageNamed:@"主题背景"]];
-    imageview.image= [self compressImageWith:imageview.image width:imageview.image.size.width height:imageview.image.size.height];
-    
-  
-    
-    
-    UILabel * pubTimeLabel =[UILabel new];
-    pubTimeLabel.text=@"演出时间:";
-    UILabel *pubTimeLabel1=[UILabel new];
-    pubTimeLabel1.text=_model.fabuTime;
-    [self textFoundColor:pubTimeLabel];
-
-    
-    
-    
-    
-    UILabel * addressLabel =[UILabel new];
-    addressLabel.text=@"演出地点:";
-     UILabel * addressLabel1 =[UILabel new];
-     addressLabel1.text=_model.didianLabel;
-     [self textFoundColor:addressLabel];
-    NSLog(@"演出地点%@",_model.didianLabel);
-    
-    UILabel * xiangXiLable =[UILabel new];
-    xiangXiLable.text=@"详细地点:";
-    [self textFoundColor:xiangXiLable];
+     [self daohangTiao];
+    _nameArray=@[@"演出时间:",@"演出城市:",@"详细地址:",@"联  系  人:",@"联系方式:",@"详细要求:"];
+    _imageArray=@[@"ycgg_time",@"ycgg_place",@"ycgg_person",@"ycgg_phone",@"ycgg_lubiao",@"ycgg_xuqiu"];
    
-    UILabel * xiangXiLable1 =[UILabel new];
-    xiangXiLable1.text=_model.xiangXi;
+    _daraArray=@[_model.fabuTime,_model.didianLabel,_model.xiangXi,_model.nameLabel,_model.phoneLabel,_model.neirongLabel];
     
     
-    UILabel * yaoqiuLabel =[UILabel new];
-    yaoqiuLabel.text=@"演出要求:";
-    UILabel *yaoqiu1 =[UILabel new];
-    yaoqiu1.text=_model.neirongLabel;
-    [self textFoundColor:yaoqiuLabel];
-    
-    
-    UILabel * nameLabel =[UILabel new];
-    nameLabel.text=@"联 系 人:";
-    UILabel * nameLabel1 =[UILabel new];
-    nameLabel1.text=_model.nameLabel;
-    [self textFoundColor:nameLabel];
-    
-    
-    UILabel * phoneLabel =[UILabel new];
-    phoneLabel.text=@"联系方式:";
-    UIButton * phoneLabel1 =[UIButton new];
-    [phoneLabel1 setTitle:_model.phoneLabel forState:0];
-    [phoneLabel1 setTitleColor:[UIColor blackColor] forState:0];
-//    phoneLabel1.text=_model.phoneLabel;
-     [self textFoundColor:phoneLabel];
-    
-    [_bgScroller sd_addSubviews:@[titleLabel,timeLabel,imageview,pubTimeLabel,addressLabel,addressLabel1,pubTimeLabel1,yaoqiuLabel,nameLabel,nameLabel1,phoneLabel,yaoqiu1,phoneLabel1,xiangXiLable,xiangXiLable1]];
-    
-    //左按钮
-    UIButton*backBtn=[UIButton buttonWithType:UIButtonTypeCustom];
-    backBtn.frame=CGRectMake(5,27, 35, 35);
-    [backBtn setBackgroundImage:[UIImage imageNamed:@"goback_back_orange_on"] forState:0];
-    [backBtn addTarget:self action:@selector(backClink) forControlEvents:UIControlEventTouchUpInside];
-    UIBarButtonItem * leftBtn =[[UIBarButtonItem alloc]initWithCustomView:backBtn];
-     self.navigationItem.leftBarButtonItem=leftBtn;
-    
-    pubTimeLabel1.font=[UIFont systemFontOfSize:15];
-     addressLabel1.font=[UIFont systemFontOfSize:15];
-     yaoqiu1.font=[UIFont systemFontOfSize:15];
-     nameLabel1.font=[UIFont systemFontOfSize:15];
-    phoneLabel1.titleLabel.font=[UIFont systemFontOfSize:15];
-     xiangXiLable1.font=[UIFont systemFontOfSize:15];
-  
+    [self  CreatTabelView];
+}
+
+#pragma mark --创建区头
+-(UIView*)CreatTableViewHead{
+    UIView * headView =[UIView new];
+    headView.backgroundColor=[UIColor whiteColor];
+    headView.sd_layout
+    .leftSpaceToView(self.view,0)
+    .rightSpaceToView(self.view,0)
+    .topSpaceToView(self.view,64)
+    .heightIs(290);
+    //标题
+    UILabel * titleLabel =[UILabel new];
+    titleLabel.font=[UIFont systemFontOfSize:19];
+    titleLabel.alpha=.6;
+    titleLabel.text=_model.titleLabel;
+    [headView sd_addSubviews:@[titleLabel]];
     titleLabel.sd_layout
-    .topSpaceToView(_bgScroller,10)
-    .leftSpaceToView(_bgScroller,30)
-    .rightSpaceToView(_bgScroller,30)
-    .autoHeightRatio(0);
-    
-    timeLabel.sd_layout
-    .leftSpaceToView(_bgScroller,10)
-    .rightSpaceToView(_bgScroller,10)
-    .topSpaceToView(titleLabel,10)
-    .autoHeightRatio(0);
-    
-    imageview.sd_layout
-    .leftSpaceToView(_bgScroller,0)
-    .rightSpaceToView(_bgScroller,0)
-    .topSpaceToView(timeLabel,15)
-    .heightIs(KUAN*imageview.image.size.height/imageview.image.size.width);
-    
-
-    
-    
-    phoneLabel1.contentHorizontalAlignment = UIControlContentHorizontalAlignmentLeft;
-    phoneLabel1.titleEdgeInsets = UIEdgeInsetsMake(0, 0, 0, 0);
-    [phoneLabel1 addTarget:self action:@selector(phoneCell) forControlEvents:UIControlEventTouchUpInside];
-    
-    pubTimeLabel.sd_layout
-    .topSpaceToView(imageview,15)
-    .leftEqualToView(timeLabel)
-    .autoWhiteRatio(0)
-    .autoHeightRatio(0);
-    
-    pubTimeLabel1.sd_layout
-    .topSpaceToView(pubTimeLabel,5)
-    .leftEqualToView(pubTimeLabel)
-    .autoHeightRatio(0);
-    [pubTimeLabel1 setSingleLineAutoResizeWithMaxWidth:KUAN];
-    
-    
-    addressLabel.sd_layout
-    .topSpaceToView(pubTimeLabel1,5)
-    .leftEqualToView(timeLabel)
-    .autoWhiteRatio(0)
-    .autoHeightRatio(0);
-    
-  
-    
-    
-    
-    addressLabel1.sd_layout
-    .topSpaceToView(addressLabel,5)
-    .leftEqualToView(addressLabel)
-    .autoHeightRatio(0);
-    [addressLabel1 setSingleLineAutoResizeWithMaxWidth:KUAN];
-    
-    xiangXiLable.sd_layout
-    .topSpaceToView(addressLabel1,5)
-    .leftEqualToView(addressLabel)
-    .autoWhiteRatio(0)
-    .autoHeightRatio(0);
-    
-    
-    xiangXiLable1.sd_layout
-    .topSpaceToView(xiangXiLable,5)
-    .leftEqualToView(xiangXiLable)
-    .autoHeightRatio(0);
-    [xiangXiLable1 setSingleLineAutoResizeWithMaxWidth:KUAN];
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    yaoqiuLabel.sd_layout
-    .topSpaceToView(xiangXiLable1,5)
-    .leftEqualToView(timeLabel)
-    .autoWhiteRatio(0)
-    .autoHeightRatio(0);
-  
-    yaoqiu1.sd_layout
-    .topSpaceToView(yaoqiuLabel,5)
-    .leftEqualToView(yaoqiuLabel)
-    .autoHeightRatio(0);
-    [yaoqiu1 setSingleLineAutoResizeWithMaxWidth:KUAN];
-    
-    nameLabel.sd_layout
-    .topSpaceToView(yaoqiu1,5)
-    .leftEqualToView(timeLabel)
-    .autoWhiteRatio(0)
-    .autoHeightRatio(0);
-    
-    nameLabel1.sd_layout
-    .topSpaceToView(nameLabel,5)
-    .leftEqualToView(nameLabel)
-    .autoHeightRatio(0);
-    [nameLabel1 setSingleLineAutoResizeWithMaxWidth:KUAN];
-    
-    phoneLabel.sd_layout
-    .topSpaceToView(nameLabel1,5)
-    .leftEqualToView(timeLabel)
-    .rightEqualToView(timeLabel)
-    .autoHeightRatio(0);
-    
-    phoneLabel1.sd_layout
-    .topSpaceToView(phoneLabel,5)
-    .leftEqualToView(phoneLabel)
-    .rightSpaceToView(_bgScroller,10)
+    .centerXEqualToView(headView)
+    .topSpaceToView(headView,15)
     .heightIs(20);
-//    .autoHeightRatio(0);
-    //[phoneLabel1.titleLabel setSingleLineAutoResizeWithMaxWidth:KUAN];
+    [titleLabel setSingleLineAutoResizeWithMaxWidth:ScreenWidth];
+    //发布时间
+    UILabel * timeLabel =[UILabel new];
+    timeLabel.font=[UIFont systemFontOfSize:14];
+    timeLabel.alpha=.4;
+    timeLabel.text=[NSString stringWithFormat:@"发布时间:  %@",_model.nowTime];
+    [headView sd_addSubviews:@[timeLabel]];
+    timeLabel.sd_layout
+    .leftSpaceToView(headView,20)
+    .topSpaceToView(titleLabel,15)
+    .heightIs(20);
+    [timeLabel setSingleLineAutoResizeWithMaxWidth:ScreenWidth];
     
-    phoneLabel1.didFinishAutoLayoutBlock=^(CGRect aaa){
-     // NSLog(@">>>%f",aaa.origin.y);
-        
-       _bgScroller.contentSize=CGSizeMake(KUAN, aaa.origin.y+aaa.size.height+50);
-        
-        
-    };
+    //图片
+    UIImageView * imageView =[UIImageView new];
+    [imageView sd_setImageWithURL:[NSURL URLWithString:_model.imageview] placeholderImage:[UIImage imageNamed:@"messege_bg"]];//181 158
+    [headView sd_addSubviews:@[imageView]];
+    imageView.sd_layout
+    .leftSpaceToView(headView,0)
+    .rightSpaceToView(headView,0)
+    .topSpaceToView(timeLabel,10)
+    .heightIs(200);
     
+    
+    
+    
+    return headView;
+}
+
+#pragma mark --创建表
+-(void)CreatTabelView{
+    if (!_tableView) {
+        _tableView=[[UITableView alloc]initWithFrame:CGRectMake(0, 0, ScreenWidth, ScreenHight) style:UITableViewStylePlain];
     }
-
--(void)textFoundColor:(UILabel * )label{
-    label.textColor=[UIColor colorWithRed:37/255.0 green:181/255.0 blue:239/255.0 alpha:1];
-    label.font=[UIFont systemFontOfSize:18];
+    _tableView.dataSource=self;
+    _tableView.delegate=self;
+    _tableView.backgroundColor=COLOR;
+    _tableView.rowHeight=44;
+    _tableView.separatorStyle=UITableViewCellSeparatorStyleNone;
+    _tableView.tableHeaderView=[self CreatTableViewHead];
+    _tableView.tableFooterView=[UIView new];
+    [self.view addSubview:_tableView];
     
 }
--(void)phoneCell{
-    [ShuJuModel tellPhone:_model.phoneLabel];
+
+-(NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
+    return _daraArray.count;
 }
-
-
--(void)backClink
+-(UITableViewCell*)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
+    UITableViewCell * cell =[tableView dequeueReusableCellWithIdentifier:@"Cell"];
+    if (!cell) {
+        cell=[[UITableViewCell alloc]initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"Cell"];
+        UIImageView * imageview =[UIImageView new];
+        imageview.tag=1;
+        [cell sd_addSubviews:@[imageview]];
+        
+        UILabel * nameLabel =[UILabel new];
+        nameLabel.tag=2;
+        [cell sd_addSubviews:@[nameLabel]];
+        
+        UILabel * contentLabel =[UILabel new];
+        contentLabel.tag=3;
+        [cell sd_addSubviews:@[contentLabel]];
+        
+    }
+    cell.selectionStyle=UITableViewCellSelectionStyleNone;
+    UIImageView * imageview =[cell viewWithTag:1];
+    UILabel * nameLabel =[cell viewWithTag:2];
+    UILabel * contentLabel =[cell viewWithTag:3];
+    
+    imageview.image=[UIImage imageNamed:_imageArray[indexPath.row]];
+    imageview.sd_layout
+    .leftSpaceToView(cell,15)
+    .centerYEqualToView(cell)
+    .widthIs(14)
+    .heightIs(14);
+    
+    nameLabel.text=_nameArray[indexPath.row];
+    nameLabel.font=[UIFont systemFontOfSize:15];
+    nameLabel.alpha=.6;
+    nameLabel.sd_layout
+    .leftSpaceToView(imageview,15)
+    .centerYEqualToView(cell)
+    .heightIs(20);
+    [nameLabel setSingleLineAutoResizeWithMaxWidth:220];
+    
+    contentLabel.text=_daraArray[indexPath.row];
+    contentLabel.font=[UIFont systemFontOfSize:15];
+    contentLabel.alpha=.8;
+    contentLabel.sd_layout
+    .leftSpaceToView(nameLabel,15)
+    .centerYEqualToView(cell)
+    .autoHeightRatio(0);
+    [contentLabel setSingleLineAutoResizeWithMaxWidth:220];
+   
+    if (indexPath.row==4) {
+        contentLabel.textColor=DAO_COLOR;
+    }
+    return cell;
+}
+-(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    [self.navigationController popViewControllerAnimated:YES];
-    
+    if (indexPath.row==3) {
+        NSLog(@"%@",_daraArray[3]);
+        
+        NSString * str =[NSString stringWithFormat:@"拨打%@",_daraArray[3]];
+        UIAlertController * actionView =[UIAlertController alertControllerWithTitle:@"温馨提示" message:str preferredStyle:UIAlertControllerStyleAlert];
+        UIAlertAction * action1 =[UIAlertAction actionWithTitle:@"是" style:0 handler:^(UIAlertAction * _Nonnull action) {
+            [ToolClass tellPhone:str];
+            
+            
+        }];
+        UIAlertAction * action2 =[UIAlertAction actionWithTitle:@"否" style:0 handler:nil];
+        [actionView addAction:action2];
+        [actionView addAction:action1];
+        [self presentViewController:actionView animated:YES completion:nil];
+        
+    }
 }
+
+-(CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    if (indexPath.row==5) {
+        
+        
+        return [ToolClass HeightForText:_model.neirongLabel withSizeOfLabelFont:18 withWidthOfContent:220]+20;
+    }else{
+        return 44;
+    }
+}
+//-(void)phoneCell{
+//    [ShuJuModel tellPhone:_model.phoneLabel];
+//}
+//
+//
+//-(void)backClink
+//{
+//    [self.navigationController popViewControllerAnimated:YES];
+//    
+//}
 -(UIImage *)compressImageWith:(UIImage *)image width:(float)width height:(float)height
 {
     float imageWidth = image.size.width;
@@ -277,23 +221,6 @@
     
 }
 
-
--(void)jieXi
-{
-//    [ShuJuModel huoquFirstPage:page Tiao:type success:^(NSDictionary *dic) {
-//        
-//        NSMutableArray * conArr= [dic objectForKey:@"content"];
-//        for (NSDictionary * dicd in conArr) {
-//            firstModel =[[FirstModel alloc]initWithDic:dicd];
-//            [_dataArray addObject:firstModel];
-//        }
-//       
-//        
-//    } error:^(NSError *error) {
-//        
-//    }];
-
-}
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
@@ -308,5 +235,22 @@
     // Pass the selected object to the new view controller.
 }
 */
-
+#pragma mark --导航条创建
+-(void)daohangTiao{
+    self.navigationController.navigationBar.barTintColor=DAO_COLOR;
+    self.view.backgroundColor=COLOR;
+    self.title=@"演出公告";
+    [self.navigationController.navigationBar setTitleTextAttributes:@{NSForegroundColorAttributeName:[UIColor whiteColor],NSFontAttributeName:[UIFont systemFontOfSize:biaoti]}];
+    //返回按钮
+    UIButton*backBtn=[UIButton buttonWithType:UIButtonTypeCustom];
+    backBtn.frame=CGRectMake(5,27, 35, 35);
+    [backBtn setBackgroundImage:[UIImage imageNamed:@"goback_back_orange_on"] forState:0];
+    [backBtn addTarget:self action:@selector(backClink2) forControlEvents:UIControlEventTouchUpInside];
+    UIBarButtonItem * leftBtn =[[UIBarButtonItem alloc]initWithCustomView:backBtn];
+    self.navigationItem.leftBarButtonItem=leftBtn;
+    
+}
+-(void)backClink2{
+    [self.navigationController popViewControllerAnimated:YES];
+}
 @end

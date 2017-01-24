@@ -89,28 +89,36 @@
     //个人简介
     NSString * jianjie =[self stringHouMianText:_jianJieName ModelText:_model.introduction];
     NSString *jingLi =[self stringHouMianText:_jingLiName ModelText:_model.experience];
-    
-    
-    [LCProgressHUD showLoading:@"请稍后..."];
-    [Engine upDataMessageAccount:[ToolClass isString:[NSString stringWithFormat:@"%@",[NSUSE_DEFO objectForKey:@"username"]]] HeadImageUrl:_headImage Name:name Sex:xingBie PhoneNumber:lianXi Provname:sheng CityName:shi DistrictName:xian Category:bqNum Introduction:jianjie Experience:jingLi success:^(NSDictionary *dic) {
-        [LCProgressHUD showMessage:[dic objectForKey:@"msg"]];
-        NSString * code =[NSString stringWithFormat:@"%@",[dic objectForKey:@"code"]];
-        if ([code isEqualToString:@"1"]) {
-            NSDictionary * contentDic =[dic objectForKey:@"content"];
-            MineModel * md =[[MineModel alloc]initWithMessageDic:[contentDic objectForKey:@"userInfo"]];
-            _xmName=md.name;
-            //存上姓名，在演艺圈点赞评论的时候用，有它来判断是否有个人资料
-            [NSUSE_DEFO setObject:md.name forKey:@"benrenname"];
-            [NSUSE_DEFO synchronize];
-            [_tableView reloadData];
-            [self.navigationController popViewControllerAnimated:YES];
-        }else
-        {
+    if ([_model.usertype isEqualToString:@"1"]) {
+        //普通用户，不需要传递
+        bqNum=nil;
+        jianjie=nil;
+        jingLi=nil;
+    }
+        //演员
+        [LCProgressHUD showLoading:@"请稍后..."];
+        [Engine upDataMessageAccount:[ToolClass isString:[NSString stringWithFormat:@"%@",[NSUSE_DEFO objectForKey:@"username"]]] HeadImageUrl:_headImage Name:name Sex:xingBie PhoneNumber:lianXi Provname:sheng CityName:shi DistrictName:xian Category:bqNum Introduction:jianjie Experience:jingLi success:^(NSDictionary *dic) {
             [LCProgressHUD showMessage:[dic objectForKey:@"msg"]];
-        }
-    } error:^(NSError *error) {
-        
-    }];
+            NSString * code =[NSString stringWithFormat:@"%@",[dic objectForKey:@"code"]];
+            if ([code isEqualToString:@"1"]) {
+                NSDictionary * contentDic =[dic objectForKey:@"content"];
+                MineModel * md =[[MineModel alloc]initWithMessageDic:[contentDic objectForKey:@"userInfo"]];
+                _xmName=md.name;
+                //存上姓名，在演艺圈点赞评论的时候用，有它来判断是否有个人资料
+                [NSUSE_DEFO setObject:md.name forKey:@"benrenname"];
+                [NSUSE_DEFO synchronize];
+                [_tableView reloadData];
+                [self.navigationController popViewControllerAnimated:YES];
+            }else
+            {
+                [LCProgressHUD showMessage:[dic objectForKey:@"msg"]];
+            }
+        } error:^(NSError *error) {
+            
+        }];
+
+    
+    
     
 }
 
@@ -121,8 +129,8 @@
 
 #pragma mark --创建数据源
 -(void)CeratData{
-    NSArray * arr1 =@[@"姓       名",@"性       别",@"联系方式",@"地       区"];
-    NSArray * arr2=@[@"职业分类"];
+    NSArray * arr1 =@[@"姓       名:",@"性       别:",@"联系方式:",@"地       区:"];
+    NSArray * arr2=@[@"职业分类:"];
     NSArray * arr3=@[@""];
     NSArray * arr4=@[@""];
     if ([_model.usertype isEqualToString:@"1"]) {
@@ -147,21 +155,22 @@
     //背景图片
     UIImageView * bgimageView =[UIImageView new];
     bgimageView.userInteractionEnabled=YES;
-    //[bgimageView sd_setImageWithURL:[NSURL URLWithString:@"http://img.bitscn.com/upimg/allimg/c160120/1453262R114060-155B6.jpg"] placeholderImage:[UIImage imageNamed:@"messege_bg"]];
-    bgimageView.image=[UIImage imageNamed:@"messege_bg"];
-    UIImage *imge=  [self scaleToSize:bgimageView.image size:CGSizeMake(ScreenWidth, 222)];
-    bgimageView.image=imge;
-    //虚化背景图片
-    [bgimageView setImageToBlur:bgimageView.image blurRadius:10 completionBlock:nil];
+    //[bgimageView sd_setImageWithURL:[NSURL URLWithString:_model.headImageStr] placeholderImage:[UIImage imageNamed:@"messege_bg"]];
     
     _bgImage=bgimageView;
     [headView sd_addSubviews:@[bgimageView]];
-    bgimageView.sd_layout
-    .leftSpaceToView(headView,0)
-    .rightSpaceToView(headView,0)
-    .topSpaceToView(headView,0)
-    .heightIs(220);
-   
+  
+    [bgimageView sd_setImageWithURL:[NSURL URLWithString:_model.headImageStr] placeholderImage:[UIImage imageNamed:@"messege_bg"] options:SDWebImageRetryFailed completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, NSURL *imageURL) {
+        //虚化背景图片
+        [bgimageView setImageToBlur:image blurRadius:20 completionBlock:nil];
+        bgimageView.sd_layout
+        .leftSpaceToView(headView,0)
+        .rightSpaceToView(headView,0)
+        .topSpaceToView(headView,0)
+        .heightIs(220);
+
+       
+    }];
     
     
     //头像
@@ -250,7 +259,7 @@
             cell.textfield.enabled=NO;
             NSString * cityName =[NSString stringWithFormat:@"%@-%@-%@",_shengName,_shiName,_xianName];
             cell.textfield.text=[self stringHouMianText:cityName ModelText:_model.sheng];
-            cell.textfield.sd_layout.widthIs(250);
+            //cell.textfield.sd_layout.widthIs(250);
         }
         
     }else if (indexPath.section==1){
@@ -339,6 +348,7 @@
         if (indexPath.row==1) {
             //性别
             XingBieVC * vc  =[XingBieVC new];
+            vc.tagg=1;//1代表是从个人信息进入，2代表是从我的进入
             vc.XingBieBlock=^(NSString*name,NSString*num){
                 _xxName=name;
                 _xxYeNum=num;
@@ -383,7 +393,7 @@
     .heightIs(20);
     [nameLable setSingleLineAutoResizeWithMaxWidth:120];
     if (section==0) {
-        nameLable.text=@"基本资料";
+        nameLable.text=@"基本信息";
     }else if (section==1){
         nameLable.text=@"填写演员资料";
     }else if (section==2){
@@ -422,7 +432,7 @@
     _headImage=image;
     _tableView.tableHeaderView=[self CreatHeadView];
     //虚化背景图片
-    [_bgImage setImageToBlur:image blurRadius:10 completionBlock:nil];
+    [_bgImage setImageToBlur:image blurRadius:20 completionBlock:nil];
     [self dismissViewControllerAnimated:YES completion:nil];
 }
 
@@ -455,7 +465,7 @@
 -(void)daohangTiao{
     self.navigationController.navigationBar.barTintColor=DAO_COLOR;
     self.view.backgroundColor=COLOR;
-    self.title=@"个人信息";
+    self.title=@"编辑个人信息";
     [self.navigationController.navigationBar setTitleTextAttributes:@{NSForegroundColorAttributeName:[UIColor whiteColor],NSFontAttributeName:[UIFont systemFontOfSize:biaoti]}];
     //返回按钮
     UIButton*backBtn=[UIButton buttonWithType:UIButtonTypeCustom];

@@ -12,4 +12,5 @@
 @property(nonatomic,strong)UILabel * titleLabel;
 @property(nonatomic,strong)UILabel * nameLabel;
 @property(nonatomic,strong)UITextView * textview;
+@property(nonatomic,strong)UISwitch * swit;
 @end

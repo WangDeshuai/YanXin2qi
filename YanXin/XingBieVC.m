@@ -19,6 +19,7 @@
     [super viewDidLoad];
     // Do any additional setup after loading the view.
     [self daohangTiao];
+    
     _dataArray=[[NSMutableArray alloc]initWithObjects:@"女",@"男", nil];
     [self CreatTabelView];
 }

@@ -68,6 +68,18 @@
     .bottomSpaceToView(headView,10);
     
     
+    //headView.backgroundColor=[UIColor redColor];
+    UIView * linView =[UIView new];
+    linView.backgroundColor=COLOR;
+    [headView sd_addSubviews:@[linView]];
+    linView.sd_layout
+    .leftSpaceToView(headView,0)
+    .rightSpaceToView(headView,0)
+    .topSpaceToView(nameLabel,2)
+    .heightIs(1);
+    
+    
+    
     [Engine chaKanXiangQingMessageAccount:_accountPhone success:^(NSDictionary *dic) {
         NSString * code =[NSString stringWithFormat:@"%@",[dic objectForKey:@"code"]];
         if ([code isEqualToString:@"1"]) {
@@ -126,7 +138,7 @@
         shuJuLabel.tag=30;
         [cell sd_addSubviews:@[shuJuLabel]];
     }
-    
+    cell.selectionStyle=UITableViewCellSelectionStyleNone;
     UIImageView * imageview =[cell viewWithTag:10];
     imageview.sd_layout
     .leftSpaceToView(cell,15)
@@ -155,9 +167,30 @@
     .heightIs(20);
     [shuJuLabel setSingleLineAutoResizeWithMaxWidth:220];
     
-    
+    if (indexPath.row==1) {
+        shuJuLabel.textColor=DAO_COLOR;
+    }
     
     return cell;
+}
+
+-(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
+{
+   
+    
+    if (indexPath.row==1) {
+      NSString * str= [NSString stringWithFormat:@"拨打%@",_dataArray[1]];
+        UIAlertController * actionView =[UIAlertController alertControllerWithTitle:@"温馨提示" message:str preferredStyle:UIAlertControllerStyleAlert];
+        UIAlertAction * action1 =[UIAlertAction actionWithTitle:@"是" style:0 handler:^(UIAlertAction * _Nonnull action) {
+             [ToolClass tellPhone:str];
+        }];
+        UIAlertAction * action2 =[UIAlertAction actionWithTitle:@"否" style:0 handler:nil];
+        [actionView addAction:action2];
+        [actionView addAction:action1];
+        [self presentViewController:actionView animated:YES completion:nil];
+    }
+   
+
 }
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];

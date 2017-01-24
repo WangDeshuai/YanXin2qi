@@ -25,7 +25,7 @@
     self.automaticallyAdjustsScrollViewInsets=NO;
     [self setupChildViewController];
     
-    self.titles = @[@"已获得",@"可结算"];
+    self.titles = @[@"总获得",@"未结算"];
     self.topTitleView = [SGTopTitleView topTitleViewWithFrame:CGRectMake(0, 64,ScreenWidth, 44)];
     _topTitleView.staticTitleArr = [NSArray arrayWithArray:_titles];
     _topTitleView.backgroundColor=[UIColor whiteColor];

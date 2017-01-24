@@ -79,9 +79,17 @@
      [dic setObject:pro forKey:@"provname"];//省
      [dic setObject:cityname forKey:@"cityname"];//市
      [dic setObject:xianName forKey:@"districtname"];//区县
-     [dic setObject:biaoQ forKey:@"category"];//标签
-     [dic setObject:jianJie forKey:@"introduction"];//简介
-     [dic setObject:jingLi forKey:@"experience"];//经历
+     NSLog(@"输出标签%@>>%@>>%@",biaoQ,jianJie,jingLi);
+    if (biaoQ) {
+        [dic setObject:biaoQ forKey:@"category"];//标签
+    }if (jianJie) {
+        [dic setObject:jianJie forKey:@"introduction"];//简介
+    }if (jingLi) {
+         [dic setObject:jingLi forKey:@"experience"];//经历
+    }
+    
+    
+    
     NSString *imagetype=@"png";
     NSData *imageData=UIImageJPEGRepresentation(imageUrl, .6);
     [manager  POST:urlStr parameters:dic constructingBodyWithBlock:^(id<AFMultipartFormData> formData) {
@@ -99,7 +107,7 @@
         aSuccess(responseObject);
         
     } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
-        
+        NSLog(@"3个人资料，演员资料修改上传%@",error);
     }];
     
     
@@ -425,12 +433,12 @@
 }
 
 #pragma mark --14查看演商成功案例
-+(void)ChanKanYanShangAnLiAccount:(NSString*)account Type:(NSString*)type Page:(NSString*)page success:(SuccessBlock)aSuccess error:(ErrorBlock)aError{
++(void)ChanKanYanShangAnLiAccount:(NSString*)account Type:(NSString*)type Page:(NSString*)page PageNum:(NSString*)num  success:(SuccessBlock)aSuccess error:(ErrorBlock)aError{
     NSString * urlStr =[NSString stringWithFormat:@"%@company/app_qryCompanySuccessCaseByType.action",SER_VICE];
     NSMutableDictionary * dic =[NSMutableDictionary new];
     [dic setObject:[ToolClass isString:[NSString stringWithFormat:@"%@",account]] forKey:@"account"];
     [dic setObject:[ToolClass isString:[NSString stringWithFormat:@"%@",type]] forKey:@"case_type"];
-    [dic setObject:@"10" forKey:@"pageSize"];
+    [dic setObject:num forKey:@"pageSize"];
     [dic setObject:page forKey:@"pageIndex"];
     AFHTTPRequestOperationManager * manager =[AFHTTPRequestOperationManager manager];
     [manager POST:urlStr parameters:dic success:^(AFHTTPRequestOperation *operation, id responseObject) {
@@ -472,8 +480,8 @@
     
     AFHTTPRequestOperationManager * manager =[AFHTTPRequestOperationManager manager];
     NSMutableDictionary * dic =[NSMutableDictionary new];
-    //[ToolClass isString:[NSString stringWithFormat:@"%@",[NSUSE_DEFO objectForKey:@"username"]]]
-    [dic setObject:@"18514232635" forKey:@"account"];
+    //[ToolClass isString:[NSString stringWithFormat:@"%@",[NSUSE_DEFO objectForKey:@"username"]]]18514232635
+    [dic setObject:[ToolClass isString:[NSString stringWithFormat:@"%@",[NSUSE_DEFO objectForKey:@"username"]]] forKey:@"account"];
     
     [manager POST:urlStr parameters:dic success:^(AFHTTPRequestOperation *operation, id responseObject) {
         NSData *data = [NSJSONSerialization dataWithJSONObject:responseObject options:NSJSONWritingPrettyPrinted error:nil];
@@ -653,7 +661,6 @@
 }
 #pragma mark --23查询已获得的财富
 +(void)ChaXunCaiFuPage:(NSString*)page success:(SuccessBlock)aSuccess error:(ErrorBlock)aError{
-    ///user/app_qryMyWealthHaveObtained.action
     NSString * urlStr =[NSString stringWithFormat:@"%@user/app_qryMyWealthHaveObtained.action",SER_VICE];
     NSMutableDictionary * dic =[NSMutableDictionary new];
     [dic setObject:[ToolClass isString:[NSString stringWithFormat:@"%@",[NSUSE_DEFO objectForKey:@"username"]]] forKey:@"account"];
@@ -673,5 +680,46 @@
         NSLog(@"23查询已获得的财富%@",error);
     }];
     
+}
+#pragma mark --24app查询当前积分(剩余的积分)
++(void)ChaXunShengYuJiFensuccess:(SuccessBlock)aSuccess error:(ErrorBlock)aError{
+    NSString * urlStr =[NSString stringWithFormat:@"%@/user/app_qryMyRemainderAccumulatedPoints.action",SER_VICE];
+    NSMutableDictionary * dic =[NSMutableDictionary new];
+    [dic setObject:[ToolClass isString:[NSString stringWithFormat:@"%@",[NSUSE_DEFO objectForKey:@"username"]]] forKey:@"account"];
+    
+    AFHTTPRequestOperationManager * manager =[AFHTTPRequestOperationManager manager];
+    [manager POST:urlStr parameters:dic success:^(AFHTTPRequestOperation *operation, id responseObject) {
+        NSData *data = [NSJSONSerialization dataWithJSONObject:responseObject options:NSJSONWritingPrettyPrinted error:nil];
+        NSString *str = [[NSString alloc]initWithData:data encoding:NSUTF8StringEncoding];
+        NSLog(@"24app查询当前积分(剩余的积分)%@",str);
+        
+        aSuccess(responseObject);
+    } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+        
+        NSLog(@"24app查询当前积分(剩余的积分)%@",error);
+    }];
+
+}
+#pragma mark--25app提现
++(void)tixianMoneyPrice:(NSString*)price ZhiFuBaoPay:(NSString*)pay ZhiFuBaoName:(NSString*)name success:(SuccessBlock)aSuccess error:(ErrorBlock)aError{
+    
+    NSString * urlStr =[NSString stringWithFormat:@"%@/user/app_drawMoney.action",SER_VICE];
+    NSMutableDictionary * dic =[NSMutableDictionary new];
+    [dic setObject:[ToolClass isString:[NSString stringWithFormat:@"%@",[NSUSE_DEFO objectForKey:@"username"]]] forKey:@"account"];
+    [dic setObject:[ToolClass isString:[NSString stringWithFormat:@"%@",name]] forKey:@"alipay_name"];
+    [dic setObject:[ToolClass isString:[NSString stringWithFormat:@"%@",pay]] forKey:@"alipay_account"];
+    [dic setObject:[ToolClass isString:[NSString stringWithFormat:@"%@",price]] forKey:@"extract_money"];
+    
+    AFHTTPRequestOperationManager * manager =[AFHTTPRequestOperationManager manager];
+    [manager POST:urlStr parameters:dic success:^(AFHTTPRequestOperation *operation, id responseObject) {
+        NSData *data = [NSJSONSerialization dataWithJSONObject:responseObject options:NSJSONWritingPrettyPrinted error:nil];
+        NSString *str = [[NSString alloc]initWithData:data encoding:NSUTF8StringEncoding];
+        NSLog(@"25app提现%@",str);
+        
+        aSuccess(responseObject);
+    } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+        
+        NSLog(@"25app提现%@",error);
+    }];
 }
 @end

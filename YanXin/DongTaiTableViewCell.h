@@ -11,4 +11,6 @@
 @interface DongTaiTableViewCell : UITableViewCell
 +(instancetype)cellWithTableView:(UITableView*)tableView CellID:(NSString*)cellID;
 @property(nonatomic,strong)WhoYanYuanModel * model;
+@property(nonatomic,strong)UIButton * deleteBtn;
+//@property(nonatomic,copy)void(^buttonBlocl)(UIButton*btn);
 @end

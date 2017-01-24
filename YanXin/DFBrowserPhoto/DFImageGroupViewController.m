@@ -179,10 +179,15 @@
            [themNav.assetDelegate didSelectAssets:themNav.selectedAssetArray]; 
         }
        
-        
+        if (themNav.selectedAssetArray.count>3) {
+            [LCProgressHUD showMessage:@"最大个数是3个"];
+            return ;
+        }else{
+             [self dismissViewControllerAnimated:YES completion:nil];
+        }
         NSLog(@"输出数组的个数%lu",themNav.selectedAssetArray.count);
     });
-    [self dismissViewControllerAnimated:YES completion:nil];
+   
 }
 
 #pragma mark collection

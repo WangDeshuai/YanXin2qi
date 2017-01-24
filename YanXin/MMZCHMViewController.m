@@ -88,44 +88,50 @@
         bgView.backgroundColor=[UIColor colorWithRed:245/255.0 green:243/255.0 blue:237/255.0 alpha:1];
         [self.view addSubview:bgView];
         
-        phone=[self createTextFielfFrame:CGRectMake(100, 10, 200, 30) font:[UIFont systemFontOfSize:14] placeholder:@"请输入手机号"];
+        phone=[self createTextFielfFrame:CGRectMake(100, 10, 240, 30) font:[UIFont systemFontOfSize:14] placeholder:@"请输入手机号"];
         phone.clearButtonMode = UITextFieldViewModeWhileEditing;
-        phone.keyboardType=UIKeyboardTypeNumberPad;
   
-        code=[self createTextFielfFrame:CGRectMake(100, 60+50, 90, 30) font:[UIFont systemFontOfSize:14]  placeholder:@"请确认密码" ];
+        code=[self createTextFielfFrame:CGRectMake(100, 60+50, 240, 30) font:[UIFont systemFontOfSize:14]  placeholder:@"请确认密码" ];
         code.clearButtonMode = UITextFieldViewModeWhileEditing;
         code.secureTextEntry=YES;
-   
-    pasCode=[self createTextFielfFrame:CGRectMake(100, 60, 90, 30) font:[UIFont systemFontOfSize:14]  placeholder:@"请输入密码" ];
+    
+    pasCode=[self createTextFielfFrame:CGRectMake(100, 60, 240, 30) font:[UIFont systemFontOfSize:14]  placeholder:@"请输入密码" ];
     pasCode.clearButtonMode = UITextFieldViewModeWhileEditing;
     pasCode.secureTextEntry=YES;
-    
-    passCode=[self createTextFielfFrame:CGRectMake(100, 60+100, 90, 30) font:[UIFont systemFontOfSize:14]  placeholder:@"请输入验证码" ];
+   
+    passCode=[self createTextFielfFrame:CGRectMake(100, 60+100, 150, 30) font:[UIFont systemFontOfSize:14]  placeholder:@"请输入验证码" ];
     passCode.clearButtonMode = UITextFieldViewModeWhileEditing;
- //   passCode.keyboardType=UIKeyboardTypeNumberPad;
+   //验证码
+    //passCode.backgroundColor=[UIColor redColor];
+    passCode.keyboardType=UIKeyboardTypeNumberPad;
+    //密码
+   // pasCode.backgroundColor=[UIColor yellowColor];
+    //确认
+   // code.backgroundColor=[UIColor greenColor];
+    //手机号
+   // phone.backgroundColor=[UIColor magentaColor];
+     phone.keyboardType=UIKeyboardTypeNumberPad;
     
-    
-    
-    UILabel *phonelabel=[[UILabel alloc]initWithFrame:CGRectMake(20, 12, 50, 25)];
-    phonelabel.text=@"手机号";
+    UILabel *phonelabel=[[UILabel alloc]initWithFrame:CGRectMake(20, 12, 70, 25)];
+    phonelabel.text=@"手  机  号:";
     phonelabel.textColor=[UIColor blackColor];
     phonelabel.textAlignment=0;
     phonelabel.font=[UIFont systemFontOfSize:14];
     
     UILabel *codelabel=[[UILabel alloc]initWithFrame:CGRectMake(20, 62+50, 65, 25)];
-    codelabel.text=@"确认密码";
+    codelabel.text=@"确认密码:";
     codelabel.textColor=[UIColor blackColor];
     codelabel.textAlignment=0;
     codelabel.font=[UIFont systemFontOfSize:14];
     
-    UILabel *passlabel=[[UILabel alloc]initWithFrame:CGRectMake(20, 62, 50, 25)];
-    passlabel.text=@"密码";
+    UILabel *passlabel=[[UILabel alloc]initWithFrame:CGRectMake(20, 62, 70, 25)];
+    passlabel.text=@"密        码:";
     passlabel.textColor=[UIColor blackColor];
     passlabel.textAlignment=0;
     passlabel.font=[UIFont systemFontOfSize:14];
     
     UILabel *yanzhenglabel=[[UILabel alloc]initWithFrame:CGRectMake(20, 62+100, 65, 25)];
-    yanzhenglabel.text=@"验证码";
+    yanzhenglabel.text=@"验  证  码:";
     yanzhenglabel.textColor=[UIColor blackColor];
     yanzhenglabel.textAlignment=0;
     yanzhenglabel.font=[UIFont systemFontOfSize:14];
@@ -168,9 +174,11 @@
     
    
     // [LCLoadingHUD showLoading:@"验证码获取中..."];
+    [LCProgressHUD showLoading:@"验证码获取中..."];
     [ShuJuModel zhuceDuanXinYanZheng:phone.text success:^(NSDictionary *dic) {
         
       NSString*codee=  [NSString stringWithFormat:@"%@",[dic objectForKey:@"code"]];
+        [LCProgressHUD showMessage:[dic objectForKey:@"msg"]];
         if ([codee isEqualToString:@"1"]) {
             //实现倒计时
            //  [LCLoadingHUD hideInKeyWindow];
@@ -305,7 +313,6 @@
     
     if ([phone.text isEqualToString:@""])
     {
-       
         [ac addAction:q];
         [self presentViewController:ac animated:YES completion:nil];
         return;
@@ -337,24 +344,23 @@
 {
     
     
-//    NSLog(@">>验证码%@",yanzhengm);
-//     NSLog(@">>密码%@",code.text);
-   // [LCLoadingHUD showLoading:@"注册中请稍后..."];
-    
+    [LCProgressHUD showLoading:@"请稍后..."];
     [ShuJuModel registUserWithName:phone.text password:code.text  Yanzhengma:yanzhengm success:^(NSDictionary *dic)
                      {
                          NSString * code1 = [NSString stringWithFormat:@"%@",[dic objectForKey:@"code"]];
+                         [LCProgressHUD showMessage:[dic objectForKey:@"msg"]];
                          if ([code1 isEqualToString:@"1"])
                          {
-                             [WINDOW showHUDWithText:@"注册成功" Type:ShowPhotoYes Enabled:YES];
-                           //  [LCLoadingHUD hideInKeyWindow];
+                            
+                             [LCProgressHUD showMessage:@"注册成功"];
+                             
                              self.pswNameBlock(phone.text,code.text);
                              [self dismissViewControllerAnimated:YES completion:nil];
                          }
                          else
                              {
-                               //   [LCLoadingHUD hideInKeyWindow];
-                                 [WINDOW showHUDWithText:[dic objectForKey:@"msg"] Type:ShowPhotoNo Enabled:YES];
+                                
+                                 [LCProgressHUD showMessage:[dic objectForKey:@"msg"]];
                                  NSLog(@"%@>>>>>>%@",phone.text,code.text);
                              }
      

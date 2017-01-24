@@ -19,6 +19,7 @@
 #import "ChooseCityViewController.h"
 #import "YuDingChangDiViewController.h"
 #import "LrdOutputView.h"
+#import "ProvNameCityVC.h"
 @interface ShouYeViewController ()<UIScrollViewDelegate,UITableViewDataSource,UITableViewDelegate,LrdOutputViewDelegate,SDCycleScrollViewDelegate>
 {
     //城市Label
@@ -41,9 +42,10 @@
 -(void)viewWillAppear:(BOOL)animated
 {
     [[UIApplication sharedApplication] setApplicationIconBadgeNumber:0];
-    
+     [self CraetDaoHangLeftBtn];//导航条左右按钮
+     [self CreatTabelView];//创建表
 }
-  
+
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view.
@@ -51,12 +53,12 @@
     self.navigationController.navigationBar.barTintColor=DAO_COLOR;
     [self.navigationItem setTitle:@"首页"];
     [self.navigationController.navigationBar setTitleTextAttributes:@{NSForegroundColorAttributeName:[UIColor whiteColor],NSFontAttributeName:[UIFont systemFontOfSize:biaoti]}];
-    [self CraetDaoHangLeftBtn];//导航条左右按钮
-    
+   
+    _menuCode=@"0";
     
   
     _dataArray=[NSMutableArray new];
-    [self CreatTabelView];//创建表
+   
     [self CreatMenu];//下拉菜单数据源
 }
 
@@ -89,10 +91,7 @@
     leftBtn.frame=CGRectMake(0, 0, 75, 20);
     
     NSDictionary * attr =@{NSFontAttributeName:[UIFont systemFontOfSize:14]};
-    
     CGFloat k =[leftBtn.titleLabel.text boundingRectWithSize:CGSizeMake(100, 100) options:NSStringDrawingUsesLineFragmentOrigin attributes:attr context:nil].size.width+15;
-    
-    
     leftBtn.contentHorizontalAlignment=UIControlContentHorizontalAlignmentLeft;
     [leftBtn setImageEdgeInsets:UIEdgeInsetsMake(0, k, 0, -11)];
     
@@ -112,42 +111,37 @@
        self.navigationItem.rightBarButtonItem=right;
 
 }
-#pragma mark --做按钮
+#pragma mark --左按钮点击事件
 -(void)leftBtnClick:(UIButton*)btn{
-        ChooseCityViewController * md =[ChooseCityViewController new];
-        //md.shouYe=@"biaozhi";
-    md.hidesBottomBarWhenPushed=YES;
-        md.shouYeBlock=^(NSString*quanguo,NSString*ss){
-    
-            [btn setTitle:quanguo forState:0];
-            NSLog(@"ss=%@",ss);
-            if ([ss isEqualToString:@"1"]) {
-                [[NSUserDefaults standardUserDefaults]removeObjectForKey:@"shengz"];
-                [[NSUserDefaults standardUserDefaults]removeObjectForKey:@"shiz"];
-                [[NSUserDefaults standardUserDefaults]removeObjectForKey:@"xianz"];
-                [[NSUserDefaults standardUserDefaults]synchronize];
-            }else if ([ss isEqualToString:@"2"]){
-                [[NSUserDefaults standardUserDefaults]removeObjectForKey:@"shiz"];
-                 [[NSUserDefaults standardUserDefaults]removeObjectForKey:@"xianz"];
-                [[NSUserDefaults standardUserDefaults]synchronize];
-            }else if ([ss isEqualToString:@"3"]){
-                [[NSUserDefaults standardUserDefaults]removeObjectForKey:@"xianz"];
-                [[NSUserDefaults standardUserDefaults]synchronize];
-            }
-            else{
-                [[NSUserDefaults standardUserDefaults]setObject:quanguo forKey:@"xianz"];
-                [[NSUserDefaults standardUserDefaults]synchronize];
-            }
-             [self.dataArray removeAllObjects];
-            [self jieXiPublic:@"1" tiao:@"0"];
-        };
-        [self.navigationController pushViewController:md animated:YES];
+    ProvNameCityVC * vc =[ProvNameCityVC new];
+    vc.hidesBottomBarWhenPushed=YES;
+    vc.Block=^(NSString * sheng,NSString*shi,NSString*xian){
+        if (shi) {
+            [btn setTitle:shi forState:0];
+        }else if (sheng){
+              [btn setTitle:sheng forState:0];
+        }else if (xian){
+              [btn setTitle:xian forState:0];
+        }else{
+             [btn setTitle:@"全国" forState:0];
+        }
+        NSDictionary * attr =@{NSFontAttributeName:[UIFont systemFontOfSize:14]};
+        CGFloat k =[btn.titleLabel.text boundingRectWithSize:CGSizeMake(100, 100) options:NSStringDrawingUsesLineFragmentOrigin attributes:attr context:nil].size.width+15;
+        btn.contentHorizontalAlignment=UIControlContentHorizontalAlignmentLeft;
+        [btn setImageEdgeInsets:UIEdgeInsetsMake(0, k, 0, -11)];
+
+        _AAA=1;
+        _menuCode=0;
+        [self jieXiPublic:[NSString stringWithFormat:@"%d",_AAA] tiao:@"0"];
+    };
+    [self.navigationController pushViewController:vc animated:YES];
 
 }
 #pragma mark --右按钮
 //右按钮
 -(void)sousuo
 {
+   
     SouSuoVC * svc =[[SouSuoVC alloc]init];
     svc.hidesBottomBarWhenPushed=YES;
     [self.navigationController pushViewController:svc animated:YES];
@@ -159,7 +153,7 @@
     NSString * sheng =[[NSUserDefaults standardUserDefaults]objectForKey:@"shengz"];
     NSString *shi = [[NSUserDefaults standardUserDefaults]objectForKey:@"shiz"];
     NSString *xian = [[NSUserDefaults standardUserDefaults]objectForKey:@"xianz"];
-   // NSLog(@"%@%@%@",sheng,shi,xian);
+    NSLog(@"%@%@%@",sheng,shi,xian);
   //  [LCProgressHUD showLoading:@"请稍后..."];
     [ShuJuModel huoquFirstPage:page Tiao:type provname:sheng cityname:shi districtname:xian success:^(NSDictionary *dic) {
         [LCProgressHUD  hide];
@@ -217,22 +211,34 @@
         cycleScrollView.imageURLStringsGroup = arr;
     });
     cycleScrollView.clickItemOperationBlock = ^(NSInteger index) {
-        // NSLog(@">>>>>  %ld", (long)index);
+         NSLog(@">>>>>  %ld", (long)index);
         
     };
     NSMutableArray * imageArray =[NSMutableArray new];
     NSMutableArray * titleArray =[NSMutableArray new];
     [ShuJuModel getFirstImage:@"1" success:^(NSDictionary *dic) {
         NSArray *arr2 =[dic objectForKey:@"content"];
+        NSMutableArray * jumpUrl =[NSMutableArray new];
         for (NSDictionary * bgDic2 in arr2){
             Model1 *model1 = [[Model1 alloc]initWithDic:bgDic2];
             [imageArray addObject:model1.picUrl];
             [titleArray addObject:model1.titleName];
+            [jumpUrl addObject:model1.jumpUrl];
         }
         dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.3 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
             cycleScrollView.imageURLStringsGroup = imageArray;
             cycleScrollView.titlesGroup = titleArray;
         });
+        
+        //视频
+        cycleScrollView.clickItemOperationBlock = ^(NSInteger index) {
+            NSLog(@">>>>>  %ld", (long)index);
+            NSURL *movieUrl = [NSURL URLWithString:jumpUrl[index]];
+            [[UIApplication sharedApplication] openURL:movieUrl];
+        };
+       
+        
+        
     } error:^(NSError *error) {
                 
     }];
@@ -267,7 +273,11 @@
             [self presentViewController:vc animated:YES completion:nil];
         }
         else{
-    
+            NSLog(@"tag》》》%lu",button.tag);
+            if ( button.tag==3) {
+                [LCProgressHUD showMessage:@"正在开发中..."];
+                return;
+            }
                 ButtonSeclt * vc =[[ButtonSeclt alloc]init];
                 vc.hidesBottomBarWhenPushed=YES;
                 vc.number=button.tag;

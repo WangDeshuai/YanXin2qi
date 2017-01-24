@@ -86,20 +86,28 @@
         
         CGFloat itemW = [self itemWidthForPicPathArray:_picPathStringsArray];
         CGFloat itemH = 0;
-        if (_picPathStringsArray.count == 1) {
-            //[image sd_setImageWithURL:[NSURL URLWithString:_picPathStringsArray.firstObject]];
-            //        UIImageView *image=[self.imageViewsArray objectAtIndex:1];
-            //        [image sd_setImageWithURL:[NSURL URLWithString:_picPathStringsArray.firstObject]];
-            //UIImage *image = [UIImage imageNamed:_picPathStringsArray.firstObject];
-            UIImage *image = [UIImage imageNamed:@"1.jpg"];
-            if (image.size.width) {
-                itemH = image.size.height / image.size.width * itemW;
-            }
+    if (_picPathStringsArray.count == 1) {
+        UIImage *image = [UIImage imageNamed:_picPathStringsArray.firstObject];
+        if (image.size.width) {
+            itemH = image.size.height / image.size.width * itemW;
         }
-        else {
-            itemH = itemW;
-        }
-        
+    } else {
+        itemH = itemW;
+    }
+//        if (_picPathStringsArray.count == 1) {
+//            //[image sd_setImageWithURL:[NSURL URLWithString:_picPathStringsArray.firstObject]];
+//            //        UIImageView *image=[self.imageViewsArray objectAtIndex:1];
+//            //        [image sd_setImageWithURL:[NSURL URLWithString:_picPathStringsArray.firstObject]];
+//            //UIImage *image = [UIImage imageNamed:_picPathStringsArray.firstObject];
+//            UIImage *image = [UIImage imageNamed:@"1.jpg"];
+//            if (image.size.width) {
+//                itemH = image.size.height / image.size.width * itemW;
+//            }
+//        }
+//        else {
+//            itemH = itemW;
+//        }
+//    
         long perRowItemCount = [self perRowItemCountForPicPathArray:_picPathStringsArray];
         CGFloat margin = 5;
         
@@ -152,7 +160,7 @@
     if (array.count == 1) {
         return 120;
     } else {
-        CGFloat w = [UIScreen mainScreen].bounds.size.width > KUAN ? 80 : 70;
+        CGFloat w = [UIScreen mainScreen].bounds.size.width > 320 ? 100 : 100;
         return w;
     }
 }
@@ -162,9 +170,9 @@
     if (array.count < 3) {
         return array.count;
     } else if (array.count <= 4) {
-        return 3;
+        return 2;
     } else {
-        return 4;
+        return 3;
     }
 }
 

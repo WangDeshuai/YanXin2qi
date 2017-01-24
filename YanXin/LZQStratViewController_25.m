@@ -35,11 +35,11 @@
     //初始化滚动视图
     _scrollView = [[UIScrollView alloc] initWithFrame:CGRectMake(0, 0, SCR_W, SCR_H)];
     //设置滚动视图区域
-    _scrollView.contentSize = CGSizeMake(SCR_W * 3, SCR_H);
-    NSMutableArray * starArr = [[NSMutableArray alloc]initWithObjects:@"star1",@"star2",@"star3", nil];
-    for (int i = 0; i < 3; i ++) {
+    
+    NSMutableArray * starArr = [[NSMutableArray alloc]initWithObjects:@"star1",@"star2",@"star3", @"star4",nil];
+    _scrollView.contentSize = CGSizeMake(SCR_W * starArr.count, SCR_H);
+    for (int i = 0; i < starArr.count; i ++) {
         UIImageView *imageView = [[UIImageView alloc] initWithFrame:CGRectMake(SCR_W * i , 0, SCR_W, SCR_H)];
-       // imageView.image = [UIImage imageNamed:[NSString stringWithFormat:@"%d.jpg",i]];
         imageView.image=[UIImage imageNamed:starArr[i]];
         
         [_scrollView addSubview:imageView];
@@ -48,10 +48,6 @@
     _scrollView.pagingEnabled = YES;
     //设置滚动风格
     _scrollView.indicatorStyle = UIScrollViewIndicatorStyleBlack;
-          //  UIScrollViewIndicatorStyleDefault, // 黑色
-          //  UIScrollViewIndicatorStyleBlack,   // 黑色
-          //  UIScrollViewIndicatorStyleWhite    // 白色
-    
     //隐藏水平导航栏
     _scrollView.showsHorizontalScrollIndicator = NO;
     //设置代理
@@ -66,16 +62,16 @@
     _pageControl = [[UIPageControl alloc] initWithFrame:CGRectMake(0, SCR_H - 60, SCR_W, 40)];
     _pageControl.backgroundColor = [UIColor redColor];
     //设置小圆点个数
-    _pageControl.numberOfPages = 3;
+    _pageControl.numberOfPages = 4;
     //[self.view addSubview:_pageControl];
 }
 
 
 - (void)addBtn{
-    _btn = [[UIButton alloc] initWithFrame:CGRectMake(SCR_W * 2 + SCR_W / 2-75, 530*GAO/667, 150, 77*150/300)];
-    
+    _btn = [[UIButton alloc] initWithFrame:CGRectMake(SCR_W * 3 + SCR_W / 2-75, 530*GAO/667, 150, 200*150/300)];
+    //_btn.backgroundColor=[UIColor redColor];
     [_btn addTarget:self action:@selector(clickBtn) forControlEvents:UIControlEventTouchUpInside];
-    [_btn setBackgroundImage:[UIImage imageNamed:@"立即体验"] forState:0];
+    //[_btn setBackgroundImage:[UIImage imageNamed:@"立即体验"] forState:0];
     [_scrollView addSubview:_btn];
 }
 

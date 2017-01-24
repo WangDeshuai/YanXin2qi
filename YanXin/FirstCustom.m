@@ -72,7 +72,7 @@
     .topSpaceToView(_lab1,0)
     .leftEqualToView(_lab1)
     .rightSpaceToView(bg,10)
-    .autoHeightRatio(0);
+    .heightIs(20);
     
     _lab3.sd_layout
     .topSpaceToView(_lab2,0)
@@ -89,7 +89,7 @@
    [_image1 sd_setImageWithURL:[NSURL URLWithString:_model.imageview] placeholderImage:[UIImage imageNamed:@"1.jpg"]];
      _lab1.text=_model.titleLabel;
      _lab2.text=_model.neirongLabel;
-     _lab3.text=_model.nowTime;
+    _lab3.text=[NSString stringWithFormat:@"演出时间: %@",_model.fabuTime];
     
    // NSLog(@"我就看这名字%@",_model.titleLabel);
     [self isAchievement];

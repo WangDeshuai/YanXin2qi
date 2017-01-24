@@ -39,11 +39,11 @@
     _nameLabel.alpha=.8;
     _titleLabel.font=[UIFont systemFontOfSize:15];
     _nameLabel.font=[UIFont systemFontOfSize:15];
-    
+    //标题名字
     _titleLabel.sd_layout
     .leftSpaceToView(self.contentView,15)
     .centerYEqualToView(self.contentView)
-    .widthIs(100)
+    .widthIs(70)
     .heightIs(20);
     
     _nameLabel.sd_layout
@@ -56,17 +56,19 @@
     _textfield=[UITextField new];
     _textfield.placeholder=@"未填写";
     _textfield.font=[UIFont systemFontOfSize:15];
-    _textfield.textAlignment=2;
-   // _textfield.backgroundColor=[UIColor yellowColor];
+    _textfield.textAlignment=0;
+//    _textfield.backgroundColor=[UIColor yellowColor];
     [self.contentView sd_addSubviews:@[_textfield]];
     _textfield.sd_layout
+    .leftSpaceToView(_titleLabel,10)
     .rightSpaceToView(self.contentView,15)
     .centerYEqualToView(self.contentView)
-    .heightIs(30)
-    .widthIs(120);
+    .heightIs(30);
+    
+    
+    
     //textView
     _textView=[UITextView new];
-   // _textView.backgroundColor=[UIColor magentaColor];
     _textView.font=[UIFont systemFontOfSize:15];
     _textView.hidden=YES;
     [self.contentView sd_addSubviews:@[_textView]];

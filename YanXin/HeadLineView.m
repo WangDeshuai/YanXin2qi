@@ -19,6 +19,7 @@
     UILabel *label1;
     UILabel *label2;
     UILabel *label3;
+    UIButton * _lastBtn;
     //按钮的数据
     NSMutableArray * buttonArray;
 }
@@ -72,6 +73,9 @@
 //按钮点击 传入代理
 -(void)buttonClick:(UIButton*)button
 {
+    _lastBtn.selected=NO;
+    button.selected=YES;
+    _lastBtn=button;
     NSInteger viewTag=[button tag];
     if ([button isEqual:currentSelected]) {
         return;
@@ -96,7 +100,8 @@
         [btn setTitle:_titleArray[i] forState:UIControlStateNormal];
         btn.titleLabel.textAlignment=NSTextAlignmentCenter;
         btn.titleLabel.font=[UIFont systemFontOfSize:15.0f];
-        [btn setTitleColor:DAO_COLOR forState:UIControlStateNormal];
+        [btn setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
+         [btn setTitleColor:DAO_COLOR forState:UIControlStateSelected];
         [btn setBackgroundColor:[UIColor whiteColor]];
 
         //btn.contentEdgeInsets = UIEdgeInsetsMake(<#CGFloat top#>, <#CGFloat left#>, <#CGFloat bottom#>, <#CGFloat right#>);
@@ -107,6 +112,8 @@
         [buttonArray addObject:btn];
         [self addSubview:btn];
         if (i==0) {
+            btn.selected=YES;
+            _lastBtn=btn;
             currentSelected=btn;
             //深绿线
             label1=[[UILabel alloc]initWithFrame:CGRectMake(0, 45.5, WIDTH/3, 2.5)];

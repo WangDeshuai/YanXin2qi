@@ -31,6 +31,7 @@
 @property(nonatomic,copy)NSString * headTime;//发布时间
 @property(nonatomic,copy)NSString * headConent;//内容
 @property(nonatomic,strong)NSArray * headImageArr;//发布的图片
+@property(nonatomic,copy)NSString * dongTaiID;
 -(id)initWithDongTaiDic:(NSDictionary*)dic;
 
 

@@ -54,7 +54,8 @@
     UIAlertController * actionView =[UIAlertController alertControllerWithTitle:@"" message:@"是否确认退出" preferredStyle:UIAlertControllerStyleAlert];
     UIAlertAction * action1 =[UIAlertAction actionWithTitle:@"是" style:0 handler:^(UIAlertAction * _Nonnull action) {
         [NSUSE_DEFO removeObjectForKey:@"username"];
-        [NSUSE_DEFO removeObjectForKey:@"benrenname"];
+        [NSUSE_DEFO removeObjectForKey:@"benrenname"];//点赞的时候用完善个人资料用
+        [NSUSE_DEFO removeObjectForKey:@"VIP"];//是不是vip
         [NSUSE_DEFO synchronize];
         [self.navigationController popViewControllerAnimated:YES];
     }];

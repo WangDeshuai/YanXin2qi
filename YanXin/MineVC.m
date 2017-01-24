@@ -42,13 +42,13 @@
 
 -(void)CreatData{
     NSArray * arr1 =@[@"我的主页"];
-    NSArray * arr2 =@[@"升级演员",@"邀请分享"];
-    NSArray * arr3 =@[@"设置",@"帮助",@"检验更新"];
+    NSArray * arr2 =@[@"升级会员",@"邀请分享"];
+    NSArray * arr3 =@[@"设置",@"帮助"];
     _titleArr=@[arr1,arr2,arr3];
     
     NSArray * arr11 =@[@"my_home"];
     NSArray * arr22 =@[@"my_huyuan",@"my_share"];
-    NSArray * arr33 =@[@"my_set",@"my_help",@"my_jiance"];
+    NSArray * arr33 =@[@"my_set",@"my_help"];
     _imageArr=@[arr11,arr22,arr33];
     
 }
@@ -59,6 +59,9 @@
         if ([code isEqualToString:@"1"]) {
             NSDictionary * contentDic =[dic objectForKey:@"content"];
             _md =[[MineModel alloc]initWithMessageDic:contentDic];
+            //把userType存上，发布消息的时候用来判断是不是会yuan
+            [NSUSE_DEFO setObject:_md.usertype forKey:@"VIP"];
+            [NSUSE_DEFO synchronize];
             _tableView.tableHeaderView=[self CreatTableHead:_md];
             [_tableView reloadData];
         }else
@@ -92,7 +95,9 @@
     .heightIs(80);
     //头像
     UIImageView * lineImage =[UIImageView new];
-    lineImage.image=[UIImage imageNamed:@"my_pic"];//
+   //
+    lineImage.sd_cornerRadius=@(70/2);
+    [lineImage sd_setImageWithURL:[NSURL URLWithString:_md.headImageStr] placeholderImage:[UIImage imageNamed:@"my_pic"]];
     [view1 sd_addSubviews:@[lineImage]];
     lineImage.sd_layout
     .topSpaceToView(view1,23)
@@ -149,7 +154,7 @@
     .leftEqualToView(nameLabel)
     .topSpaceToView(nameLabel,5)
     .heightIs(20);
-    [numberHao setSingleLineAutoResizeWithMaxWidth:120];
+    [numberHao setSingleLineAutoResizeWithMaxWidth:220];
     //加入时间
     UILabel * timeLabel =[UILabel new];
     timeLabel.alpha=.7;
@@ -170,6 +175,7 @@
         numberHao.text=@"未登录";
         timeLabel.text=@"";
         headView.sd_layout.heightIs(203-93);
+        lineImage.image=[UIImage imageNamed:@"my_pic"];
         return headView;
     }
     
@@ -297,6 +303,9 @@
         UILabel * label =[UILabel new];
         label.tag=2;
         [cell sd_addSubviews:@[label]];
+//        UISwitch * swit=[[UISwitch alloc]init];
+//        swit.tag=3;
+//        [cell sd_addSubviews:@[swit]];
         
     }
     UIButton *imageBtn =[cell viewWithTag:1];
@@ -320,9 +329,40 @@
     cell.selectionStyle=UITableViewCellSelectionStyleNone;
     cell.accessoryType=UITableViewCellAccessoryDisclosureIndicator;
     
+//    UISwitch * swit =[cell viewWithTag:3];
+//    swit.hidden=YES;
+//    swit.sd_layout
+//    .rightSpaceToView(cell,15)
+//    .centerYEqualToView(cell)
+//    .widthIs(49)
+//    .heightIs(30);
+//    
+    
+//    if (indexPath.section==2) {
+//        if (indexPath.row==2) {
+//             swit.hidden=NO;
+//             cell.accessoryType=UITableViewCellAccessoryNone;
+//            if ([NSUSE_DEFO objectForKey:@"隐藏"]!=nil) {
+//                swit.on = YES;
+//            }else{
+//                swit.on = NO;
+//            }
+//            [swit addTarget:self action:@selector(switchAction:) forControlEvents:UIControlEventValueChanged];
+//        }
+//    }
+    
     return cell;
 }
-
+-(void)switchAction:(UISwitch*)swit{
+    
+    if (swit.on==YES) {
+        [NSUSE_DEFO setObject:@"手机号隐藏" forKey:@"隐藏"];
+       
+    }else{
+        [NSUSE_DEFO removeObjectForKey:@"隐藏"];
+    }
+     [NSUSE_DEFO synchronize];
+}
 -(CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section{
     return 7;
 }
@@ -340,11 +380,16 @@
     }else{
         
         if (indexPath.section==0) {
-            //我的主页
-            YanYuanXiangQingVC * vc =[YanYuanXiangQingVC new];
-            vc.phoneNum=[NSUSE_DEFO objectForKey:@"username"];
-            vc.hidesBottomBarWhenPushed=YES;
-            [self.navigationController pushViewController:vc animated:YES];
+            if ([_md.usertype isEqualToString:@"2"]) {
+                //我的主页
+                YanYuanXiangQingVC * vc =[YanYuanXiangQingVC new];
+                vc.phoneNum=[NSUSE_DEFO objectForKey:@"username"];
+                vc.hidesBottomBarWhenPushed=YES;
+                [self.navigationController pushViewController:vc animated:YES];
+            }else{
+                [LCProgressHUD showMessage:@"请先升级为演员"];
+            }
+            
         }else if (indexPath.section==1){
             if (indexPath.row==0) {
                 /*

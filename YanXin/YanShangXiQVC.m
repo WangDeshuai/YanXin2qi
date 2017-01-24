@@ -72,7 +72,9 @@
 #pragma mark --创建图片标题
 -(void)CreatImageView{
     UIImageView * headImage =[UIImageView new];
-    headImage.image=[UIImage imageNamed:@"messege_bg"];   [_bgView sd_addSubviews:@[headImage]];
+    //headImage.image=_titleImage;
+    [headImage sd_setImageWithURL:[NSURL URLWithString:_titleImage] placeholderImage:[UIImage imageNamed:@"messege_bg"]];
+    [_bgView sd_addSubviews:@[headImage]];
     headImage.sd_layout
     .centerXEqualToView(_bgView)
     .topSpaceToView(_bgView,54)
@@ -157,7 +159,7 @@
 -(void)daohangTiao{
     self.navigationController.navigationBar.barTintColor=DAO_COLOR;
     self.view.backgroundColor=[UIColor whiteColor];
-    self.title=@"详情页";
+    self.title=_titleName;
     [self.navigationController.navigationBar setTitleTextAttributes:@{NSForegroundColorAttributeName:[UIColor whiteColor],NSFontAttributeName:[UIFont systemFontOfSize:biaoti]}];
     //返回按钮
     UIButton*backBtn=[UIButton buttonWithType:UIButtonTypeCustom];

@@ -59,7 +59,7 @@ typedef void (^ErrorBlock)(NSError * error);
 +(void)chaKanXiangQingMessageAccount:(NSString*)account success:(SuccessBlock)aSuccess error:(ErrorBlock)aError;
 
 #pragma mark --14查看演商成功案例
-+(void)ChanKanYanShangAnLiAccount:(NSString*)account Type:(NSString*)type Page:(NSString*)page success:(SuccessBlock)aSuccess error:(ErrorBlock)aError;
++(void)ChanKanYanShangAnLiAccount:(NSString*)account Type:(NSString*)type Page:(NSString*)page PageNum:(NSString*)num  success:(SuccessBlock)aSuccess error:(ErrorBlock)aError;
 
 #pragma mark --15查询VIP等级
 +(void)ChaXunVIPdengjisuccess:(SuccessBlock)aSuccess error:(ErrorBlock)aError;
@@ -83,5 +83,9 @@ typedef void (^ErrorBlock)(NSError * error);
 +(void)ChaXunMyFriendsZhiJie:(NSString*)type Page:(NSString*)page success:(SuccessBlock)aSuccess error:(ErrorBlock)aError;
 #pragma mark --23查询已获得的财富
 +(void)ChaXunCaiFuPage:(NSString*)page success:(SuccessBlock)aSuccess error:(ErrorBlock)aError;
+#pragma mark --24app查询当前积分(剩余的积分)
++(void)ChaXunShengYuJiFensuccess:(SuccessBlock)aSuccess error:(ErrorBlock)aError;
+#pragma mark--25app提现
++(void)tixianMoneyPrice:(NSString*)price ZhiFuBaoPay:(NSString*)pay ZhiFuBaoName:(NSString*)name success:(SuccessBlock)aSuccess error:(ErrorBlock)aError;
 
 @end

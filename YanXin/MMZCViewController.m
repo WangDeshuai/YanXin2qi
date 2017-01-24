@@ -112,8 +112,8 @@
     //pwd.keyboardType=UIKeyboardTypeNumberPad;
 
     
-    UIImageView *userImageView=[self createImageViewFrame:CGRectMake(20, 10, 25, 25) imageName:@"ic_landing_nickname" color:nil];
-    UIImageView *pwdImageView=[self createImageViewFrame:CGRectMake(20, 60, 25, 25) imageName:@"mm_normal" color:nil];
+    UIImageView *userImageView=[self createImageViewFrame:CGRectMake(20, 13, 20, 20) imageName:@"login_admin" color:nil];
+    UIImageView *pwdImageView=[self createImageViewFrame:CGRectMake(20, 63, 35/2, 43/2) imageName:@"login_password" color:nil];
     UIImageView *line1=[self createImageViewFrame:CGRectMake(20, 50, bgView.frame.size.width-40, 1) imageName:nil color:[UIColor colorWithRed:180/255.0f green:180/255.0f blue:180/255.0f alpha:.3]];
     
     [bgView addSubview:user];
@@ -335,6 +335,7 @@
             [self JpushAlias:registId];
             //取出手机用来判断是否登录
             [NSUSE_DEFO setObject:[ToolClass isString:[userInfoDic objectForKey:@"account"]] forKey:@"username"];
+            [NSUSE_DEFO setObject:[ToolClass isString:[NSString stringWithFormat:@"%@",[userInfoDic objectForKey:@"usertype"]]] forKey:@"VIP"];
             [NSUSE_DEFO synchronize];
             [self dismissViewControllerAnimated:YES completion:nil];
         }else

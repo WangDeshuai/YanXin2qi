@@ -96,6 +96,8 @@
          _headConent=[ToolClass isString:[NSString stringWithFormat:@"%@",[dic objectForKey:@"content"]]];
         //图片数组
          _headImageArr=[dic objectForKey:@"imgList"];
+        //动态ID
+        _dongTaiID=[ToolClass isString:[NSString stringWithFormat:@"%@",[dic objectForKey:@"id"]]];
     }
     
     return self;

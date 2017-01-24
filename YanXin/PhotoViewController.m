@@ -10,6 +10,7 @@
 #import "AddImageCCell.h"
 #import "SGImagePickerController.h"//相片选择
 #import "UpDownVidioVC.h"
+#import "PhotoYuLanView.h"
 static NSString *headerViewIdentifier = @"hederview";
 @interface PhotoViewController ()<UICollectionViewDelegate,UICollectionViewDataSource>
 @property(nonatomic,strong)NSMutableArray * dataArray;
@@ -26,11 +27,10 @@ static NSString *headerViewIdentifier = @"hederview";
     // Do any additional setup after loading the view.
     [self daohangTiao];
     _dataArray=[NSMutableArray new];
+    
     [self CreatCollectionView];
     if (_phoneNum==[NSUSE_DEFO objectForKey:@"username"]) {
         [self CreatUpDownBtn];
-    }else{
-        
     }
     
     
@@ -95,7 +95,7 @@ static NSString *headerViewIdentifier = @"hederview";
     
 }
 
-#pragma mark --获取相册(视频)
+#pragma mark --- 演员界面numTag==1 --获取相册(视频)
 -(void)getPhotoDataPage:(NSString*)page{
     [Engine ChaKanYanYuanPhotoVitioAccount:_phoneNum Type:[NSString stringWithFormat:@"%lu",_tagg] Page:page PageNum:@"10" success:^(NSDictionary *dic) {
         NSString * code =[NSString stringWithFormat:@"%@",[dic objectForKey:@"code"]];
@@ -132,7 +132,49 @@ static NSString *headerViewIdentifier = @"hederview";
     }];
 }
 
-
+#pragma mark --演出公司界面numTag==2 获取相册视频
+-(void)getWangLuoQingQiuVidoPage:(NSString*)page{
+    //Type:1演zhaop 2视频
+    NSLog(@"%lu",_tagg);
+    [Engine ChanKanYanShangAnLiAccount:_phoneNum Type:[NSString stringWithFormat:@"%lu",_tagg] Page:page PageNum:@"10" success:^(NSDictionary *dic) {
+        
+        NSString * code =[NSString stringWithFormat:@"%@",[dic objectForKey:@"code"]];
+        if ([code isEqualToString:@"1"]) {
+            NSArray * contentArr =[dic objectForKey:@"content"];
+            NSMutableArray * array2 =[NSMutableArray new];
+            for (NSDictionary * dicc in contentArr) {
+                NSString * urlStr =[ToolClass isString:[NSString stringWithFormat:@"%@",[dicc objectForKey:@"case_url"]]];
+                UIImageView * imageview =[UIImageView new];
+                if (_tagg==1) {
+                    [imageview sd_setImageWithURL:[NSURL URLWithString:urlStr] placeholderImage:[UIImage imageNamed:@"messege_bg"]];
+                }else{
+                    [imageview sd_setImageWithURL:[NSURL URLWithString:urlStr] placeholderImage:[UIImage imageNamed:@"video_bg"]];
+                }
+                 [array2 addObject:imageview.image];
+            }
+        
+            if (self.myRefreshView == _collectionView.header) {
+                _dataArray = array2;
+                _collectionView.footer.hidden = _dataArray.count==0?YES:NO;
+            }else if(self.myRefreshView == _collectionView.footer){
+                [_dataArray addObjectsFromArray:array2];
+            }
+            
+            [_myRefreshView  endRefreshing];
+            [_collectionView reloadData];
+            
+            
+            
+            
+        } else
+        {
+            [LCProgressHUD showMessage:[dic objectForKey:@"msg"]];
+        }
+        
+    } error:^(NSError *error) {
+        
+    }];
+}
 -(void)CreatCollectionView{
     UICollectionViewFlowLayout * flowLawyou =[UICollectionViewFlowLayout new];
     int d =((ScreenWidth-20)-(5*2))/3;
@@ -166,7 +208,12 @@ static NSString *headerViewIdentifier = @"hederview";
         NSLog(@"往下拉了");
         _AAA=1;
         weakSelf.myRefreshView = weakSelf.collectionView.header;
-        [self getPhotoDataPage:[NSString stringWithFormat:@"%d",_AAA]];
+        if (_numTag==2) {
+            [self getWangLuoQingQiuVidoPage:[NSString stringWithFormat:@"%d",_AAA]];
+        }else{
+          [self getPhotoDataPage:[NSString stringWithFormat:@"%d",_AAA]];
+        }
+        
 
     }];
     
@@ -178,7 +225,12 @@ static NSString *headerViewIdentifier = @"hederview";
         NSLog(@"往上拉了加载更多");
         _AAA=_AAA+1;
         
-        [self getPhotoDataPage:[NSString stringWithFormat:@"%d",_AAA]];
+        if (_numTag==2) {
+            [self getWangLuoQingQiuVidoPage:[NSString stringWithFormat:@"%d",_AAA]];
+        }else{
+            [self getPhotoDataPage:[NSString stringWithFormat:@"%d",_AAA]];
+        }
+        
     }];
     _collectionView.footer.hidden = YES;
 }
@@ -199,7 +251,14 @@ static NSString *headerViewIdentifier = @"hederview";
     
 }
 -(void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath{
+    //图片
     
+    PhotoYuLanView * vc =[[PhotoYuLanView alloc]initWithFangDa:_dataArray NSindex:indexPath.row Tagg:2];
+     __weak __typeof(vc)weakSelf = vc;
+    vc.dissBlock=^(){
+        [weakSelf dissmiss];
+    };
+    [vc show];
 }
 
 
@@ -222,7 +281,12 @@ static NSString *headerViewIdentifier = @"hederview";
 -(void)daohangTiao{
     self.navigationController.navigationBar.barTintColor=DAO_COLOR;
     self.view.backgroundColor=COLOR;
-    self.title=@"照片";
+    if (_tagg==1) {
+        self.title=@"查看相册";
+    }else{
+        self.title=@"查看视频";
+    }
+    
     [self.navigationController.navigationBar setTitleTextAttributes:@{NSForegroundColorAttributeName:[UIColor whiteColor],NSFontAttributeName:[UIFont systemFontOfSize:biaoti]}];
     //返回按钮
     UIButton*backBtn=[UIButton buttonWithType:UIButtonTypeCustom];

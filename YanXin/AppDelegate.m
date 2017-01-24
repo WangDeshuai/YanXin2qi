@@ -304,27 +304,54 @@ didReceiveLocalNotification:(UILocalNotification *)notification {
 }
 -(void) onResp:(BaseResp*)resp
 {
-    NSString *strMsg = [NSString stringWithFormat:@"errcode:%d", resp.errCode];
-    NSString *strTitle;
     
-    if([resp isKindOfClass:[SendMessageToWXResp class]])
-    {
-        strTitle = [NSString stringWithFormat:@"发送媒体消息结果"];
-    }
-    if([resp isKindOfClass:[PayResp class]]){
-        //支付返回结果，实际支付结果需要去微信服务器端查询
-        strTitle = [NSString stringWithFormat:@"支付结果"];
-       // NSLog(@"微信支付结果%@>>%d",resp,resp.errCode);
-        if (resp.errCode==0) {
-            strTitle=@"支付成功";
-        }else if (resp.errCode==1){
-//            strTitle=resp.errStr;
-            strTitle=@"支付失败";
+    if ([resp isKindOfClass:[PayResp class]]) {
+        PayResp*response=(PayResp*)resp;  // 微信终端返回给第三方的关于支付结果的结构体
+        switch (response.errCode) {
+            case WXSuccess:
+            {// 支付成功，向后台发送消息
+                NSLog(@"支付成功");
+                [[NSNotificationCenter defaultCenter] postNotificationName:@"WX_PaySuccess" object:nil];
+            }
+                break;
+            case WXErrCodeCommon:
+            { //签名错误、未注册APPID、项目设置APPID不正确、注册的APPID与设置的不匹配、其他异常等
+                NSLog(@"支付失败");
+                [LCProgressHUD showMessage:@"支付失败"];
+            }
+                break;
+            case WXErrCodeUserCancel:
+            { //用户点击取消并返回
+                NSLog(@"取消支付");
+                [LCProgressHUD showMessage:@"取消支付"];
+            }
+                break;
+            case WXErrCodeSentFail:
+            { //发送失败
+                NSLog(@"发送失败");
+                [LCProgressHUD showMessage:@"发送失败"];
+            }
+                break;
+            case WXErrCodeUnsupport:
+            { //微信不支持
+                NSLog(@"微信不支持");
+                [LCProgressHUD showMessage:@"微信不支持"];
+            }
+                break;
+            case WXErrCodeAuthDeny:
+            { //授权失败
+                NSLog(@"授权失败");
+                [LCProgressHUD showMessage:@"授权失败"];
+              
+            }
+                break;
+            default:
+                break;
         }
-
     }
-        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:strTitle message:strMsg delegate:self cancelButtonTitle:@"OK" otherButtonTitles:nil, nil];
-        [alert show];
+    
+    
+    
 }
 // NOTE: 9.0以后使用新API接口
 - (BOOL)application:(UIApplication *)app openURL:(NSURL *)url options:(NSDictionary<NSString*, id> *)options
@@ -335,14 +362,11 @@ didReceiveLocalNotification:(UILocalNotification *)notification {
         if ([url.host isEqualToString:@"safepay"]) {
             //跳转支付宝钱包进行支付，处理支付结果
             [[AlipaySDK defaultService] processOrderWithPaymentResult:url standbyCallback:^(NSDictionary *resultDic) {
-                NSLog(@"这是首页的结果result = %@",resultDic);
-                NSString * resu =[NSString stringWithFormat:@"%@",[resultDic objectForKey:@"resultStatus"]];
-                if ([resu isEqualToString:@"9000"]) {
-                    [LCProgressHUD showMessage:@"支付成功"];
-                }else{
-                     [LCProgressHUD showMessage:@"支付失败"];
-                }
-                
+              //  NSLog(@"这是首页的结果result = %@",resultDic);
+                //创建一个消息对象
+                NSNotification * notice = [NSNotification notificationWithName:@"safepay" object:nil userInfo:resultDic];
+                //发送消息
+                [[NSNotificationCenter defaultCenter]postNotification:notice];
                 
             }];
             return YES;

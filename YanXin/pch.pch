@@ -44,9 +44,10 @@
 #define ScreenHight CGRectGetMaxY([UIScreen mainScreen].bounds)
 #define WINDOW [[[UIApplication sharedApplication] delegate] window]
 #define IOS8 [[[UIDevice currentDevice] systemVersion]floatValue]>=8.0
-#define biaoti 17
+#define biaoti 18
 #define NSUSE_DEFO [NSUserDefaults standardUserDefaults]
 #define JXColor(r, g, b, a) [UIColor colorWithRed:(r)/255.0 green:(g)/255.0 blue:(b)/255.0 alpha:(a)]
 #define COLOR  [UIColor colorWithRed:236/255.0 green:236/255.0 blue:236/255.0 alpha:1]
-#define DAO_COLOR  [UIColor colorWithRed:75/255.0 green:157/255.0 blue:249/255.0 alpha:1]
+#define DAO_COLOR  [UIColor colorWithRed:17/255.0 green:115/255.0 blue:2548/255.0 alpha:1]
+//
 #endif

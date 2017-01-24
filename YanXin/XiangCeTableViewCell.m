@@ -89,13 +89,18 @@ static NSString *headerViewIdentifier = @"hederview";
 }
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath{
     AddImageCCell * cell= [collectionView dequeueReusableCellWithReuseIdentifier:@"cell" forIndexPath:indexPath];
-    cell.backgroundColor=[UIColor magentaColor];
+    cell.backgroundColor=[UIColor whiteColor];
  
     if (indexPath.section==0) {
         NSMutableArray * imageArr=_dataArr[0];
         NSString * urlimage =imageArr[indexPath.row];
         NSLog(@"urlStr=%@",urlimage);
-        [cell.imageView sd_setImageWithURL:[NSURL URLWithString:urlimage] placeholderImage:[UIImage imageNamed:@""]];
+        if ([urlimage isEqualToString:@""]) {
+            
+        }else{
+            [cell.imageView sd_setImageWithURL:[NSURL URLWithString:urlimage] placeholderImage:[UIImage imageNamed:@""]]; 
+        }
+       
         
         
     }else{

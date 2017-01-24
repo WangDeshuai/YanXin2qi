@@ -9,16 +9,14 @@
 #import "SuccessAnLiViC.h"
 #import "QTCollectionReusableView.h"
 #import "AddImageCCell.h"
-#import "DFThemeNav.h"
-#import "DFBrowserController.h"
-#
+#import "PhotoViewController.h"
+#import "PhotoYuLanView.h"//点击放大
 static NSString *headerViewIdentifier = @"hederview";
-@interface SuccessAnLiViC ()<UICollectionViewDelegate,UICollectionViewDataSource,DFAssetDelegate, DFPhotoBrowserDelegate, DFPresentedProtocol>
+@interface SuccessAnLiViC ()<UICollectionViewDelegate,UICollectionViewDataSource>
 @property(nonatomic,strong)UICollectionView * collectionView;
 @property(nonatomic,assign)int AAA;
 @property (nonatomic, strong) MJRefreshComponent *myRefreshView;
 @property (nonatomic, strong) NSArray *photoArray;
-@property (nonatomic, strong) DFBrowserAnimator *borwserAnimator;
 
 @property(nonatomic,strong)NSMutableArray * imageArray;
 @property(nonatomic,strong)NSMutableArray * vivtoArray;
@@ -34,7 +32,6 @@ static NSString *headerViewIdentifier = @"hederview";
     _vivtoArray=[NSMutableArray new];
     _imageArray=[NSMutableArray new];
     _dataArray=[NSMutableArray new];
-    self.borwserAnimator = [[DFBrowserAnimator alloc] init];
     [self CreatCollectionView];
     [self getWangLuoQingQiu];
     [self getWangLuoQingQiuVidoPage];
@@ -44,7 +41,7 @@ static NSString *headerViewIdentifier = @"hederview";
 //图片
 -(void)getWangLuoQingQiu{
     //_accountPhone
-    [Engine ChanKanYanShangAnLiAccount:@"15032735032" Type:@"1" Page:@"1" success:^(NSDictionary *dic) {
+    [Engine ChanKanYanShangAnLiAccount:_accountPhone Type:@"1" Page:@"1" PageNum:@"6" success:^(NSDictionary *dic) {
         
         NSString * code =[NSString stringWithFormat:@"%@",[dic objectForKey:@"code"]];
         if ([code isEqualToString:@"1"]) {
@@ -65,7 +62,7 @@ static NSString *headerViewIdentifier = @"hederview";
 //视频
 -(void)getWangLuoQingQiuVidoPage{
     
-    [Engine ChanKanYanShangAnLiAccount:@"15032735032" Type:@"2" Page:@"1" success:^(NSDictionary *dic) {
+    [Engine ChanKanYanShangAnLiAccount:_accountPhone Type:@"2" Page:@"1" PageNum:@"6" success:^(NSDictionary *dic) {
         
         NSString * code =[NSString stringWithFormat:@"%@",[dic objectForKey:@"code"]];
         if ([code isEqualToString:@"1"]) {
@@ -126,7 +123,7 @@ static NSString *headerViewIdentifier = @"hederview";
 }
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath{
     AddImageCCell * cell= [collectionView dequeueReusableCellWithReuseIdentifier:@"cell" forIndexPath:indexPath];
-    cell.backgroundColor=[UIColor magentaColor];
+    cell.backgroundColor=[UIColor whiteColor];
     if (indexPath.section==0) {
        [cell.imageView sd_setImageWithURL:[NSURL URLWithString:_imageArray[indexPath.row]] placeholderImage:[UIImage imageNamed:@""]];
        // cell.strUrl=_imageArray[indexPath.row];
@@ -139,8 +136,26 @@ static NSString *headerViewIdentifier = @"hederview";
     return cell;
     
 }
+#pragma mark --点击放大
 -(void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath{
-    
+    if (indexPath.section==0) {
+        //图片
+        /*
+         tagg==1说明，数组中存的是url
+         tagg==2说明，数组中存的是image,
+         */
+        PhotoYuLanView * vc =[[PhotoYuLanView alloc]initWithFangDa:_imageArray NSindex:indexPath.row Tagg:1];
+        __weak __typeof(vc)weakSelf = vc;
+        vc.dissBlock=^(){
+            [weakSelf dissmiss];
+        };
+        [vc show];
+    }else{
+        //视频
+        //视频
+        NSURL *movieUrl = [NSURL URLWithString:_vivtoArray[indexPath.row]];
+        [[UIApplication sharedApplication] openURL:movieUrl];
+    }
     
 }
 
@@ -164,7 +179,7 @@ static NSString *headerViewIdentifier = @"hederview";
     UIView *bgView=[[UIView alloc]init];
     bgView.frame=CGRectMake(0, 0, ScreenWidth, 44);
     bgView.backgroundColor=[UIColor whiteColor];
-  
+    
     UIImageView * imageView =[UIImageView new];
     //181 158
     [bgView sd_addSubviews:@[imageView]];
@@ -176,14 +191,27 @@ static NSString *headerViewIdentifier = @"hederview";
     
     
     UILabel * nameLabel =[UILabel new];
-    nameLabel.font=[UIFont systemFontOfSize:15];
-    nameLabel.alpha=.6;
+    nameLabel.font=[UIFont systemFontOfSize:13];
+    nameLabel.alpha=.5;
     [bgView sd_addSubviews:@[nameLabel]];
     nameLabel.sd_layout
     .leftSpaceToView(imageView,10)
     .centerYEqualToView(bgView)
     .heightIs(20);
     [nameLabel setSingleLineAutoResizeWithMaxWidth:220];
+    
+    UIButton * moreBtn =[UIButton buttonWithType:UIButtonTypeCustom];
+    [moreBtn setBackgroundImage:[UIImage imageNamed:@"yanyuan_more"] forState:0];
+    moreBtn.tag=indexpath.section;
+    [moreBtn addTarget:self action:@selector(moreBtnClick:) forControlEvents:UIControlEventTouchUpInside];
+    [bgView sd_addSubviews:@[moreBtn]];
+    
+    moreBtn.sd_layout
+    .rightSpaceToView(bgView,15)
+    .centerYEqualToView(bgView)
+    .widthIs(61)
+    .heightIs(12);
+    
     if (indexpath.section==0) {
         imageView.image=[UIImage imageNamed:@"messege_photo"];
         nameLabel.text=@"案例图片";
@@ -192,7 +220,20 @@ static NSString *headerViewIdentifier = @"hederview";
         nameLabel.text=@"案例视频";
     }
     
+
+    
     return bgView;
+}
+#pragma mark --查看更多
+-(void)moreBtnClick:(UIButton*)btn{
+    PhotoViewController * vc =[PhotoViewController new];
+    vc.numTag=2;//2代表是从演商公司进入
+    vc.phoneNum=_accountPhone;
+    vc.tagg=btn.tag+1;//1相册，2视频
+    [self.navigationController pushViewController:vc animated:YES];
+    
+    
+    
 }
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];

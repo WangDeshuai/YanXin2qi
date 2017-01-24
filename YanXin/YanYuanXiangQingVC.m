@@ -16,6 +16,8 @@
 #import "WhoYanYuanModel.h"//基本动态model
 #import "PhotoViewController.h"//相册
 #import "PhotoYuLanView.h"//放大预览
+#import "UIImageView+LBBlurredImage.h"//头像虚拟
+#import <MediaPlayer/MediaPlayer.h>
 @interface YanYuanXiangQingVC ()<UITableViewDataSource,UITableViewDelegate,headLineDelegate,NavHeadTitleViewDelegate>
 {
     //头像
@@ -199,21 +201,26 @@
 #pragma mark --拉伸顶部图片
 //拉伸顶部图片
 -(void)lashenBgView{
-    UIImage *image=[UIImage imageNamed:@"messege_bg"];
     //图片的宽度设为屏幕的宽度，高度自适应
-    NSLog(@"%f",image.size.height);
-    _backgroundImgV=[[UIImageView alloc]initWithFrame:CGRectMake(0, 0, ScreenWidth, image.size.height+40)];
-    _backgroundImgV.image=image;
-    _backgroundImgV.userInteractionEnabled=YES;
-    [self.view addSubview:_backgroundImgV];
+    _backgroundImgV=[[UIImageView alloc]initWithFrame:CGRectMake(0, 0, ScreenWidth, 216+40)];
+    [_backgroundImgV sd_setImageWithURL:[NSURL URLWithString:_md.headimgurl] placeholderImage:[UIImage imageNamed:@"messege_bg"]];
     _backImgHeight=_backgroundImgV.frame.size.height;
     _backImgWidth=_backgroundImgV.frame.size.width;
     _backImgOrgy=_backgroundImgV.frame.origin.y;
+     [self.view addSubview:_backgroundImgV];
+
+    
+   
+    
+
+    
+    
+    
 }
 #pragma mark --创建表
 -(void)createTableView{
     if (!_tableView) {
-        _tableView=[[UITableView alloc]initWithFrame:CGRectMake(0, 64, ScreenWidth, ScreenHight-64) style:UITableViewStylePlain];
+        _tableView=[[UITableView alloc]initWithFrame:CGRectMake(0, 64, ScreenWidth, ScreenHight-64-40) style:UITableViewStylePlain];
         _tableView.backgroundColor=[UIColor clearColor];
         _tableView.showsVerticalScrollIndicator=NO;
         _tableView.dataSource=self;
@@ -280,15 +287,16 @@
     }
     [_tableView reloadData];
 }
-#pragma mark --区头视图
+#pragma mark --表头视图
 -(HeadImageView *)headImageView{
     if (!_headImageView) {
         _headImageView=[[HeadImageView alloc]init];
         _headImageView.frame=CGRectMake(0, 64, ScreenWidth, 170);
         _headImageView.backgroundColor=[UIColor clearColor];
+        
         //头像
         _headerImg=[UIImageView new];
-        [_headerImg sd_setImageWithURL:[NSURL URLWithString:@"http://img.bitscn.com/upimg/allimg/c160120/1453262R114060-155B6.jpg"] placeholderImage:[UIImage imageNamed:@"messege_big"]];
+        [_headerImg sd_setImageWithURL:[NSURL URLWithString:_md.headimgurl] placeholderImage:[UIImage imageNamed:@"messege_big"]];
         _headerImg.sd_cornerRadius=@(78/2);
         [_headImageView sd_addSubviews:@[_headerImg]];
         _headerImg.sd_layout
@@ -296,6 +304,7 @@
         .topSpaceToView(_headImageView,5)
         .widthIs(78)
         .heightIs(78);
+      
         //认证图标
         UIImageView * vipimage =[UIImageView new];
         vipimage.image=[UIImage imageNamed:@"messege_shiming"];//181 158
@@ -317,25 +326,28 @@
         //演信号
         UILabel * yanXinNumber =[UILabel new];
         yanXinNumber.text=@"演信号:254129572";
+        yanXinNumber.textAlignment=1;
         yanXinNumber.font=[UIFont systemFontOfSize:15];
         yanXinNumber.textColor=[UIColor whiteColor];
         [_headImageView sd_addSubviews:@[yanXinNumber]];
         yanXinNumber.sd_layout
         .centerXEqualToView(_headerImg)
-        .topSpaceToView(vipimage,10)
-        .heightIs(15);
-        [yanXinNumber setSingleLineAutoResizeWithMaxWidth:ScreenWidth];
+        .topSpaceToView(renImage,10)
+        .heightIs(15)
+        .widthIs(220);
+        
         //加入时间
         UILabel * timeLabel =[UILabel new];
         timeLabel.text=@"加入时间:2017-01-13";
         timeLabel.font=[UIFont systemFontOfSize:15];
         timeLabel.textColor=[UIColor whiteColor];
+        timeLabel.textAlignment=1;
         [_headImageView sd_addSubviews:@[timeLabel]];
         timeLabel.sd_layout
         .centerXEqualToView(_headerImg)
         .topSpaceToView(yanXinNumber,10)
+        .widthIs(220)
         .heightIs(15);
-        [timeLabel setSingleLineAutoResizeWithMaxWidth:ScreenWidth];
 
         
         [Engine ChaKanJiBenZiLiaoAccount:_phoneNum success:^(NSDictionary *dic) {
@@ -343,14 +355,46 @@
             if ([code isEqualToString:@"1"]) {
                 NSDictionary * contentDic =[dic objectForKey:@"content"];
                 WhoYanYuanModel * model=[[WhoYanYuanModel alloc]initWithDic:contentDic];
+                self.NavView.title=model.name;
+                
                 //头像
+                 [_backgroundImgV sd_setImageWithURL:[NSURL URLWithString:model.imageURL] placeholderImage:[UIImage imageNamed:@"messege_bg"]];
+                [_backgroundImgV sd_setImageWithURL:[NSURL URLWithString:model.imageURL] placeholderImage:[UIImage imageNamed:@"messege_bg"] options:SDWebImageRetryFailed completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, NSURL *imageURL) {
+                    //虚化背景图片
+                    [_backgroundImgV setImageToBlur:image blurRadius:20 completionBlock:nil];
+                    
+                }];
+                if (model.isShiMing==NO) {
+                    vipimage.alpha=0;
+                    [_headImageView sd_addSubviews:@[renImage]];
+                    renImage.sd_layout
+                    .leftSpaceToView(vipimage,-15)
+                    .topSpaceToView(_headerImg,10)
+                    .widthIs(42)
+                    .heightIs(13);
+                }else{
+                    vipimage.alpha=1;;
+                    renImage.sd_layout
+                    .leftSpaceToView(vipimage,10)
+                    .topSpaceToView(_headerImg,10)
+                    .widthIs(42)
+                    .heightIs(13);
+                }
+                
                 [_headerImg sd_setImageWithURL:[NSURL URLWithString:model.imageURL] placeholderImage:[UIImage imageNamed:@"messege_big"]];
                 //演信号
-                yanXinNumber.text=[NSString stringWithFormat:@"演信号%@",model.yanXinNum];
+                NSString * numer =[NSString stringWithFormat:@"演信号:%@",model.yanXinNum];
+                yanXinNumber.text=numer;
+                if ([numer isEqualToString:@""]) {
+                    yanXinNumber.alpha=0;
+                }else{
+                    yanXinNumber.alpha=1;
+                }
+                
                 //vip
                 renImage.image=model.vipImage;;
                 //注册时间
-                 timeLabel.text=[NSString stringWithFormat:@"加入时间%@",model.zhuCeTime];
+                 timeLabel.text=[NSString stringWithFormat:@"加入时间:%@",model.zhuCeTime];
             }else
             {
                 [LCProgressHUD showMessage:[dic objectForKey:@"msg"]];
@@ -498,7 +542,9 @@
         cell1.titleLabel.text=_dataArray0[indexPath.section][indexPath.row];
         if (indexPath.section==0) {
             cell1.nameLabel.hidden=NO;
-            cell1.nameLabel.text=_jibenArr[0][indexPath.row];
+            [self isPhoneYinCang:cell1 NSIndexPath:indexPath];
+                        
+            
         }else if (indexPath.section==1){
             cell1.textview.hidden=NO;
             cell1.textview.text=_jibenArr[1][0];
@@ -512,6 +558,18 @@
     }else if(_currentIndex==1){
         DongTaiTableViewCell * cell2 =[DongTaiTableViewCell cellWithTableView:_tableView CellID:@"Cell2"];
         cell2.model=_dongTaiArr[indexPath.row];
+        cell2.deleteBtn.tag=indexPath.row;
+        NSString * str =[NSUSE_DEFO objectForKey:@"username"];
+        if (_phoneNum==str) {
+            cell2.deleteBtn.hidden=NO;
+        }else if ([str isEqualToString:@"18519186222"]){
+             cell2.deleteBtn.hidden=NO;
+        }else{
+             cell2.deleteBtn.hidden=YES;
+        }
+        
+        
+        [cell2.deleteBtn addTarget:self action:@selector(delegateBtn:) forControlEvents:UIControlEventTouchUpInside];
         return cell2;
     }else if(_currentIndex==2){
        
@@ -537,10 +595,87 @@
     
     return nil;
 }
+#pragma mark --删除按钮点击事件
+-(void)delegateBtn:(UIButton*)btn{
+   WhoYanYuanModel*md= _dongTaiArr[btn.tag];
+    [ShuJuModel shanChuMymessageID:md.dongTaiID success:^(NSDictionary *dic) {
+        NSString * code =[NSString stringWithFormat:@"%@",[dic objectForKey:@"code"]];
+         [LCProgressHUD showMessage:[dic objectForKey:@"msg"]];
+        if ([code isEqualToString:@"1"]) {
+            [_dongTaiArr removeObject:md];
+            [_tableView reloadData];
+        }else
+        {
+            [LCProgressHUD showMessage:[dic objectForKey:@"msg"]];
+        }
+    } error:^(NSError *error) {
+        
+    }];
+    NSLog(@"点击了%lu",btn.tag);
+    
+}
+#pragma mark --判断是否隐藏手机号
+-(void)isPhoneYinCang:(JiBenMessageCell*)cell NSIndexPath:(NSIndexPath*)indexPath{
+       cell.nameLabel.text=_jibenArr[0][indexPath.row];
+    if (indexPath.row==2) {
+        //如果是自己的号
+        if ([_phoneNum isEqualToString:[NSUSE_DEFO objectForKey:@"username"]]) {
+            cell.swit.hidden=NO;
+            [cell.swit addTarget:self action:@selector(switchAction:) forControlEvents:UIControlEventValueChanged];
+            //判断一下有没有隐藏
+            if ([NSUSE_DEFO objectForKey:@"隐藏"]!=nil){
+                 cell.nameLabel.text=@"***********";
+            }else{
+                 cell.nameLabel.text=_jibenArr[0][indexPath.row];
+            }
+        }
+        
+       
+    }
+    
+    
+//    if ([_phoneNum isEqualToString:[NSUSE_DEFO objectForKey:@"username"]]) {
+//        cell.nameLabel.text=_jibenArr[0][indexPath.row];
+//        if ([NSUSE_DEFO objectForKey:@"隐藏"]!=nil) {
+//            if (indexPath.row==2) {
+//                cell.nameLabel.text=@"***********";
+//            }
+//        }
+//    }else{
+//        cell.nameLabel.text=_jibenArr[0][indexPath.row];
+//    }
+    
+    
+}
+-(void)switchAction:(UISwitch*)swit{
+    if (swit.on==YES) {
+        [NSUSE_DEFO setObject:@"手机号隐藏" forKey:@"隐藏"];
+        
+    }else{
+        [NSUSE_DEFO removeObjectForKey:@"隐藏"];
+    }
+    [NSUSE_DEFO synchronize];
+    [_tableView reloadData];
+}
+
+
 -(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath{
     //cell被点击恢复
     [tableView deselectRowAtIndexPath:indexPath animated:YES];
     if (_currentIndex==0) {
+        NSString * str =[NSString stringWithFormat:@"拨打%@",_jibenArr[0][2]];
+        UIAlertController * actionView =[UIAlertController alertControllerWithTitle:@"温馨提示" message:str preferredStyle:UIAlertControllerStyleAlert];
+        UIAlertAction * action1 =[UIAlertAction actionWithTitle:@"是" style:0 handler:^(UIAlertAction * _Nonnull action) {
+            [ToolClass tellPhone:_jibenArr[0][2]];
+            
+            
+        }];
+        UIAlertAction * action2 =[UIAlertAction actionWithTitle:@"否" style:0 handler:nil];
+        [actionView addAction:action2];
+        [actionView addAction:action1];
+        [self presentViewController:actionView animated:YES completion:nil];
+
+        
     }else if (_currentIndex==1){
     }else{
     }
@@ -551,6 +686,7 @@
     cell.moreBtnBlock=^(UIButton * btn){
     //照片
         PhotoViewController * vc =[PhotoViewController new];
+        vc.numTag=1;
         vc.phoneNum=_phoneNum;
         vc.tagg=btn.tag+1;//1相册，2视频
         [self.navigationController pushViewController:vc animated:YES];
@@ -561,14 +697,24 @@
 }
 
 #pragma mark --点击图片放大预览
--(void)didPhotoYuLan:(XiangCeTableViewCell*)cell{
+-(void)didPhotoYuLan:(XiangCeTableViewCell*)cell {
     cell.IndePathBlock=^(NSIndexPath*indepath){
-       NSLog(@"点击状态%lu",indepath.row);
-        PhotoYuLanView * vc =[[PhotoYuLanView alloc]initWithFangDa:_imageArray];
-        vc.dissBlock=^(){
-            [vc dissmiss];
-        };
-        [vc show];
+        if (indepath.section==0) {
+            //图片
+            PhotoYuLanView * vc =[[PhotoYuLanView alloc]initWithFangDa:_imageArray NSindex:indepath.row Tagg:1];
+            __weak __typeof(vc)weakSelf = vc;
+            vc.dissBlock=^(){
+                 [weakSelf dissmiss];
+            };
+            [vc show];
+        }else
+        {
+            //视频
+            NSURL *movieUrl = [NSURL URLWithString:_vivtoArray[indepath.row]];
+             [[UIApplication sharedApplication] openURL:movieUrl];
+        }
+        
+      
         
     };
     

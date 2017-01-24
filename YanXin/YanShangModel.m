@@ -35,12 +35,14 @@
 -(id)initWithYanChuCommnyDic:(NSDictionary*)dic{
     self=[super init];
     if (self) {
-        _headImageUrl=[ToolClass  isString:[NSString stringWithFormat:@"%@",[dic objectForKey:@"headimgurl"]]];
+        _headImageUrl=[ToolClass  isString:[NSString stringWithFormat:@"%@",[dic objectForKey:@"showimgurl"]]];
         _title=[ToolClass  isString:[NSString stringWithFormat:@"%@",[dic objectForKey:@"name"]]];
         _content=[ToolClass  isString:[NSString stringWithFormat:@"%@",[dic objectForKey:@"introduction"]]];
         _renZheng=[ToolClass  isString:[NSString stringWithFormat:@"%@",[dic objectForKey:@"authentication"]]];
         _yanShangID=[ToolClass  isString:[NSString stringWithFormat:@"%@",[dic objectForKey:@"id"]]];
         NSString * vip =[NSString stringWithFormat:@"%@",[dic objectForKey:@"viplevel"]];
+       
+        
         if ([vip isEqualToString:@"0"]) {
             //没有vip
             _vipImage=nil;

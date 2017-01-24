@@ -20,7 +20,7 @@
         self.backgroundColor=[UIColor whiteColor];
         self.layer.cornerRadius=10;
         self.clipsToBounds=YES;
-        self.bounds=CGRectMake(0, 0, ScreenWidth-180, ScreenHight-300);
+        self.bounds=CGRectMake(0, 0, ScreenWidth-180, 44*5);
         _dataArray=titleArr;
         [self CreatTabelView];
     }
@@ -44,19 +44,24 @@
     return _dataArray.count;
 }
 -(UITableViewCell*)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
-    UITableViewCell * cell =[tableView dequeueReusableCellWithIdentifier:@"Cell"];
+    NSString * strID =[NSString stringWithFormat:@"%lu%lu",indexPath.section,indexPath.row];
+    UITableViewCell * cell =[tableView dequeueReusableCellWithIdentifier:strID];
     if (!cell) {
-        cell=[[UITableViewCell alloc]initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"Cell"];
+        cell=[[UITableViewCell alloc]initWithStyle:UITableViewCellStyleDefault reuseIdentifier:strID];
         UILabel * nameLabel =[UILabel new];
         nameLabel.tag=10;
         [cell sd_addSubviews:@[nameLabel]];
     }
+    cell.selectionStyle=UITableViewCellSelectionStyleNone;
     NewYanYuanModel * md =_dataArray[indexPath.row];
     UILabel * nameLabel =[cell viewWithTag:10];
     nameLabel.text=md.biaoQianName;
     nameLabel.font=[UIFont systemFontOfSize:15];
     nameLabel.alpha=.7;
-    
+    cell.selectionStyle=UITableViewCellSelectionStyleNone;
+    if (indexPath.row==0) {
+        cell.backgroundColor=COLOR;
+    }
     nameLabel.sd_layout
     .centerXEqualToView(cell)
     .centerYEqualToView(cell)
@@ -89,9 +94,14 @@
     view.alpha = 0.5;
     view.tag=1000;
     [window addSubview:view];
+    UITapGestureRecognizer * tap =[[UITapGestureRecognizer alloc]initWithTarget:self action:@selector(dissmiss)];
+    [view addGestureRecognizer:tap];
     [window addSubview:self];
     
 }
+
+
+
 -(void)dissmiss{
     UIWindow *window = [UIApplication sharedApplication].delegate.window;
     UIView * view =[window viewWithTag:1000];

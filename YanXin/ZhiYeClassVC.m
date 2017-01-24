@@ -136,9 +136,14 @@
 {
     if (tableView==_leftTableView) {
         [_dataArray2 removeAllObjects];
-        [self CreatRightTabelView];
-        ZhiYeClassModel * md =_dataArray1[indexPath.row];
-        [self chaXunerJiClassNum:md];
+        if (indexPath.row==0) {
+            [LCProgressHUD showMessage:@"明星不能自己选择"];
+        }else{
+              [self CreatRightTabelView];
+            ZhiYeClassModel * md =_dataArray1[indexPath.row];
+            [self chaXunerJiClassNum:md];
+        }
+       
     }else{
          ZhiYeClassModel * md =_dataArray2[indexPath.row];
         self.classNameBlcok(md.zhiYeNum,md.zhiYeName);
